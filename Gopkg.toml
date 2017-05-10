@@ -1,0 +1,15 @@
+[[dependencies]]
+  name = "github.com/gorilla/mux"
+  version = "^v1.0.0"
+
+[[dependencies]]
+  name = "github.com/pkg/errors"
+  version = "^v0.8.0"
+
+[[dependencies]]
+  name = "github.com/satori/go.uuid"
+  version = "^v1.0.0"
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/stretchr/testify"
