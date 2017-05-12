@@ -7,6 +7,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+func NewSignUp(registerUser usecase.RegisterUser) SignUp {
+	return SignUp{
+		registerUser,
+	}
+}
+
 type SignUp struct {
 	registerUser usecase.RegisterUser
 }
@@ -25,7 +31,8 @@ func (api SignUp) TryServeHTTP(w http.ResponseWriter, r *http.Request) error {
 		return errors.WithMessage(err, "failed to register user")
 	}
 
-	return JSON(w, map[string]interface{}{
+	JSON(w, 200, map[string]interface{}{
 		"id": userID,
 	})
+	return nil
 }
