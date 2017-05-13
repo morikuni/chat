@@ -20,6 +20,16 @@ type inMemoryRepo struct {
 	mu     sync.RWMutex
 }
 
+func (r *inMemoryRepo) Append(ctx context.Context, user model.User) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, ok := r.memory[user.ID()]; ok {
+		return domain.ErrEntityAlreadyExist
+	}
+	r.memory[user.ID()] = user
+	return nil
+}
+
 func (r *inMemoryRepo) Save(ctx context.Context, user model.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()

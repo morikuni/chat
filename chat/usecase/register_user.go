@@ -54,9 +54,9 @@ func (ru registerUser) Register(ctx context.Context, name, aEmail, aPassword str
 		}
 	}
 	u := user.New(n, e, p)
-	err = ru.userRepo.Save(ctx, u)
+	err = ru.userRepo.Append(ctx, u)
 	if err != nil {
-		return "", errors.WithMessage(err, "failed to save user")
+		return "", errors.WithMessage(err, "failed to save new user")
 	}
 	return u.ID(), nil
 }

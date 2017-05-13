@@ -20,12 +20,14 @@ func ErrorOf(message string) DomainError {
 }
 
 type (
-	NoSuchEntityError struct{ DomainError }
-	ValidationError   struct{ DomainError }
+	NoSuchEntityError       struct{ DomainError }
+	EntityAlreadyExistError struct{ DomainError }
+	ValidationError         struct{ DomainError }
 )
 
 var (
-	ErrNoSuchEntity = NoSuchEntityError{ErrorOf("no such entity")}
+	ErrNoSuchEntity       = NoSuchEntityError{ErrorOf("no such entity")}
+	ErrEntityAlreadyExist = EntityAlreadyExistError{ErrorOf("entity already exist")}
 )
 
 func RaiseValidationError(message string) ValidationError {
