@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/email"
@@ -16,14 +18,14 @@ func NewRegisterUser(userRepo model.UserRepository) RegisterUser {
 }
 
 type RegisterUser interface {
-	Register(name, email, password string) (model.UserID, error)
+	Register(ctx context.Context, name, email, password string) (model.UserID, error)
 }
 
 type registerUser struct {
 	userRepo model.UserRepository
 }
 
-func (ru registerUser) Register(name, aEmail, aPassword string) (model.UserID, error) {
+func (ru registerUser) Register(ctx context.Context, name, aEmail, aPassword string) (model.UserID, error) {
 	n, err := user.ValidateName(name)
 	if err != nil {
 		switch e := errors.Cause(err).(type) {
@@ -52,7 +54,7 @@ func (ru registerUser) Register(name, aEmail, aPassword string) (model.UserID, e
 		}
 	}
 	u := user.New(n, e, p)
-	err = ru.userRepo.Save(u)
+	err = ru.userRepo.Save(ctx, u)
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to save user")
 	}

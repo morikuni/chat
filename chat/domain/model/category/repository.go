@@ -1,6 +1,7 @@
 package category
 
 import (
+	"context"
 	"sync"
 
 	"github.com/morikuni/chat/chat/domain"
@@ -19,14 +20,14 @@ type inMemoryRepo struct {
 	mu     sync.RWMutex
 }
 
-func (r *inMemoryRepo) Save(category model.Category) error {
+func (r *inMemoryRepo) Save(ctx context.Context, category model.Category) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.memory[category.ID()] = category
 	return nil
 }
 
-func (r *inMemoryRepo) Find(id model.CategoryID) (model.Category, error) {
+func (r *inMemoryRepo) Find(ctx context.Context, id model.CategoryID) (model.Category, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	category, ok := r.memory[id]

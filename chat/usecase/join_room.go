@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/room"
@@ -21,7 +23,7 @@ func NewJoinRoom(
 }
 
 type JoinRoom interface {
-	Join(userID, roomID string) (model.RoomMemberID, error)
+	Join(ctx context.Context, userID, roomID string) (model.RoomMemberID, error)
 }
 
 type joinRoom struct {
@@ -30,8 +32,8 @@ type joinRoom struct {
 	roomMemberRepo model.RoomMemberRepository
 }
 
-func (jr joinRoom) Join(userID, roomID string) (model.RoomMemberID, error) {
-	u, err := jr.userRepo.Find(user.NewID(userID))
+func (jr joinRoom) Join(ctx context.Context, userID, roomID string) (model.RoomMemberID, error) {
+	u, err := jr.userRepo.Find(ctx, user.NewID(userID))
 	if err != nil {
 		switch errors.Cause(err).(type) {
 		case domain.NoSuchEntityError:
@@ -40,7 +42,7 @@ func (jr joinRoom) Join(userID, roomID string) (model.RoomMemberID, error) {
 			return "", errors.WithMessage(err, "failed to find user")
 		}
 	}
-	r, err := jr.roomRepo.Find(room.NewID(roomID))
+	r, err := jr.roomRepo.Find(ctx, room.NewID(roomID))
 	if err != nil {
 		switch errors.Cause(err).(type) {
 		case domain.NoSuchEntityError:
@@ -50,7 +52,7 @@ func (jr joinRoom) Join(userID, roomID string) (model.RoomMemberID, error) {
 		}
 	}
 	rm := u.JoinRoom(r)
-	err = jr.roomMemberRepo.Save(rm)
+	err = jr.roomMemberRepo.Save(ctx, rm)
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to save room member")
 	}

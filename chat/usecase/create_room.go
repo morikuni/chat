@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/category"
@@ -19,7 +21,7 @@ func NewCreateRoom(
 }
 
 type CreateRoom interface {
-	Create(categoryID, name, description string) (model.RoomID, error)
+	Create(ctx context.Context, categoryID, name, description string) (model.RoomID, error)
 }
 
 type createRoom struct {
@@ -27,8 +29,8 @@ type createRoom struct {
 	roomRepo     model.RoomRepository
 }
 
-func (jr createRoom) Create(categoryID, name, description string) (model.RoomID, error) {
-	c, err := jr.categoryRepo.Find(category.NewID(categoryID))
+func (jr createRoom) Create(ctx context.Context, categoryID, name, description string) (model.RoomID, error) {
+	c, err := jr.categoryRepo.Find(ctx, category.NewID(categoryID))
 	if err != nil {
 		switch errors.Cause(err).(type) {
 		case domain.NoSuchEntityError:
@@ -38,7 +40,7 @@ func (jr createRoom) Create(categoryID, name, description string) (model.RoomID,
 		}
 	}
 	r := c.AddRoom(room.NewName(name), room.NewDescription(description))
-	err = jr.roomRepo.Save(r)
+	err = jr.roomRepo.Save(ctx, r)
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to save room")
 	}

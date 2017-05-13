@@ -1,5 +1,7 @@
 package model
 
+import "context"
+
 type Category interface {
 	ID() CategoryID
 	Name() CategoryName
@@ -11,6 +13,6 @@ type CategoryID string
 type CategoryName string
 
 type CategoryRepository interface {
-	Save(room Category) error
-	Find(id CategoryID) (Category, error)
+	Save(ctx context.Context, room Category) error
+	Find(ctx context.Context, id CategoryID) (Category, error)
 }

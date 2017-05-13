@@ -1,5 +1,7 @@
 package model
 
+import "context"
+
 type User interface {
 	ID() UserID
 	Name() UserName
@@ -13,6 +15,6 @@ type UserID string
 type UserName string
 
 type UserRepository interface {
-	Save(user User) error
-	Find(id UserID) (User, error)
+	Save(ctx context.Context, user User) error
+	Find(ctx context.Context, id UserID) (User, error)
 }

@@ -1,9 +1,11 @@
 package user
 
 import (
+	"context"
+	"sync"
+
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
-	"sync"
 )
 
 func NewRepository() model.UserRepository {
@@ -18,14 +20,14 @@ type inMemoryRepo struct {
 	mu     sync.RWMutex
 }
 
-func (r *inMemoryRepo) Save(user model.User) error {
+func (r *inMemoryRepo) Save(ctx context.Context, user model.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.memory[user.ID()] = user
 	return nil
 }
 
-func (r *inMemoryRepo) Find(id model.UserID) (model.User, error) {
+func (r *inMemoryRepo) Find(ctx context.Context, id model.UserID) (model.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	u, ok := r.memory[id]

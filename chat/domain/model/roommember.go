@@ -1,5 +1,7 @@
 package model
 
+import "context"
+
 type RoomMemberID string
 
 type RoomMember interface {
@@ -8,6 +10,6 @@ type RoomMember interface {
 }
 
 type RoomMemberRepository interface {
-	Save(member RoomMember) error
-	Find(id RoomMemberID) (RoomMember, error)
+	Save(ctx context.Context, member RoomMember) error
+	Find(ctx context.Context, id RoomMemberID) (RoomMember, error)
 }

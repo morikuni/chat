@@ -1,8 +1,9 @@
 package chat
 
 import (
-	"github.com/morikuni/chat/chat/domain/model"
 	"time"
+
+	"github.com/morikuni/chat/chat/domain/model"
 )
 
 func New(roomID model.RoomID, message string) Chat {

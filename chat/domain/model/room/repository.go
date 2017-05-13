@@ -1,9 +1,11 @@
 package room
 
 import (
+	"context"
+	"sync"
+
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
-	"sync"
 )
 
 func NewRepository() model.RoomRepository {
@@ -18,14 +20,14 @@ type inMemoryRepo struct {
 	mu     sync.RWMutex
 }
 
-func (r *inMemoryRepo) Save(room model.Room) error {
+func (r *inMemoryRepo) Save(ctx context.Context, room model.Room) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.memory[room.ID()] = room
 	return nil
 }
 
-func (r *inMemoryRepo) Find(id model.RoomID) (model.Room, error) {
+func (r *inMemoryRepo) Find(ctx context.Context, id model.RoomID) (model.Room, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	room, ok := r.memory[id]

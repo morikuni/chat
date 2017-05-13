@@ -1,9 +1,10 @@
 package user
 
 import (
+	"testing"
+
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestHashedPassword(t *testing.T) {

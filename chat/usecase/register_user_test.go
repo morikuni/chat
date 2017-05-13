@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 
 	"github.com/morikuni/chat/chat/domain/model/user"
@@ -9,15 +10,16 @@ import (
 
 func TestRegisterUser(t *testing.T) {
 	assert := assert.New(t)
+	ctx := context.Background()
 
 	repo := user.NewRepository()
 	ru := NewRegisterUser(repo)
 
-	id, err := ru.Register("mario", "me@email.mail", "password")
+	id, err := ru.Register(ctx, "mario", "me@email.mail", "password")
 	assert.Nil(err)
 	assert.NotEmpty(id)
 
-	u, err := repo.Find(id)
+	u, err := repo.Find(ctx, id)
 
 	assert.Nil(err)
 	assert.EqualValues("mario", u.Name())

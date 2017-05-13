@@ -26,7 +26,7 @@ func (api SignUp) TryServeHTTP(w http.ResponseWriter, r *http.Request) error {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	userID, err := api.registerUser.Register(name, email, password)
+	userID, err := api.registerUser.Register(r.Context(), name, email, password)
 	if err != nil {
 		return errors.WithMessage(err, "failed to register user")
 	}
