@@ -52,7 +52,7 @@ func (r postgresRepo) Find(ctx context.Context, aType string, id string) (int, [
 	if err == sql.ErrNoRows {
 		return 0, nil, errors.WithStack(NoSuchRowError{})
 	} else if err != nil {
-		return 0, nil, errors.Wrapf(err, "failed to find: type=%s id=%s")
+		return 0, nil, errors.Wrapf(err, "failed to find: type=%s id=%s", aType, id)
 	}
 	return version, object, nil
 }
