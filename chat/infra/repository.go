@@ -20,7 +20,7 @@ type postgresRepo struct {
 }
 
 func (r postgresRepo) Append(ctx context.Context, aType string, id string, object []byte) error {
-	_, err := r.db.Exec(`INSERT INTO aggregate (id, type, version, object) VALUES ($1, $2, $3, $4)`, id, aType, 0, object)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO aggregate (id, type, version, object) VALUES ($1, $2, $3, $4)`, id, aType, 0, object)
 	if err != nil {
 		if e, ok := err.(*pq.Error); ok && e.Code.Name() == "unique_violation" {
 			return errors.WithStack(DuplicateError{fmt.Sprintf("duplicate id: type=%s id=%s object=%s", aType, id, string(object))})
@@ -31,7 +31,7 @@ func (r postgresRepo) Append(ctx context.Context, aType string, id string, objec
 }
 
 func (r postgresRepo) Save(ctx context.Context, aType string, id string, version int, object []byte) error {
-	result, err := r.db.Exec(`UPDATE aggregate SET version = version + 1, object = $1 WHERE type = $2 AND id = $3 AND version = $4`, object, aType, id, version)
+	result, err := r.db.ExecContext(ctx, `UPDATE aggregate SET version = version + 1, object = $1 WHERE type = $2 AND id = $3 AND version = $4`, object, aType, id, version)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update: type=%s id=%s object=%s", aType, id, string(object))
 	}
@@ -45,7 +45,7 @@ func (r postgresRepo) Save(ctx context.Context, aType string, id string, version
 }
 
 func (r postgresRepo) Find(ctx context.Context, aType string, id string) (int, []byte, error) {
-	row := r.db.QueryRow(`SELECT version, object FROM aggregate WHERE type = $1 AND id = $2`, aType, id)
+	row := r.db.QueryRowContext(ctx, `SELECT version, object FROM aggregate WHERE type = $1 AND id = $2`, aType, id)
 	var version int
 	var object []byte
 	err := row.Scan(&version, &object)
