@@ -13,3 +13,11 @@
 [[dependencies]]
   branch = "master"
   name = "github.com/stretchr/testify"
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/morikuni/yacm"
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/lib/pq"

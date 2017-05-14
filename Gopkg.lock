@@ -1,10 +1,22 @@
-memo = "f1e38245f3246f10b84a73851dbdf3d2a740378c8e5836b2c518ddc146fe4307"
+memo = "1b1d2c284ed6ad609e601a3321e93d605092b04909b4e2e834c2e057b7abe8c9"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lib/pq"
+  packages = [".","oid"]
+  revision = "2704adc878c21e1329f46f6e56a1c387d788ff94"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/morikuni/yacm"
+  packages = ["."]
+  revision = "ca9526d7d1b4e711ff44c0ab09de9d82a9e4b7f8"
 
 [[projects]]
   name = "github.com/pkg/errors"
