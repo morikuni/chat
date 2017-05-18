@@ -2,5 +2,5 @@ CREATE TABLE IF NOT EXISTS aggregate (
     id VARCHAR(64) PRIMARY KEY,
     type VARCHAR(64) NOT NULL,
     version INTEGER NOT NULL,
-    object TEXT NOT NULL
+    data TEXT NOT NULL
 );
