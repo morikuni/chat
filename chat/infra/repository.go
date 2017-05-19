@@ -83,41 +83,82 @@ type RepositoryContext interface {
 	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
 }
 
-type executor interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
-}
-
-type DBContext struct {
+type dbContext struct {
 	context.Context
 	db *sql.DB
 }
 
-func (c DBContext) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+func (c dbContext) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	return c.db.ExecContext(ctx, query, args...)
 }
 
-func (c DBContext) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+func (c dbContext) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	return c.db.QueryRowContext(ctx, query, args...)
 }
 
-type TxnContext struct {
+type TxContext interface {
+	RepositoryContext
+	Commit() error
+	Rollback() error
+}
+
+type txContext struct {
 	context.Context
-	txn *sql.Tx
+	tx     *sql.Tx
+	nested bool
 }
 
-func (c TxnContext) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	return c.txn.ExecContext(ctx, query, args...)
+func (c txContext) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	return c.tx.ExecContext(ctx, query, args...)
 }
 
-func (c TxnContext) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
-	return c.txn.QueryRowContext(ctx, query, args...)
+func (c txContext) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	return c.tx.QueryRowContext(ctx, query, args...)
 }
 
-func (c TxnContext) Commit() error {
-	return c.txn.Commit()
+func (c txContext) Commit() error {
+	if c.nested {
+		return nil
+	}
+	return c.tx.Commit()
 }
 
-func (c TxnContext) Rollback() error {
-	return c.txn.Rollback()
+func (c txContext) Rollback() error {
+	if c.nested {
+		return nil
+	}
+	return c.tx.Rollback()
+}
+
+type RepositoryContextProvider interface {
+	WithRepository(ctx context.Context) RepositoryContext
+	WithTx(ctx context.Context) (TxContext, error)
+}
+
+type repositoryContextProvider struct {
+	db *sql.DB
+}
+
+func (rcp repositoryContextProvider) WithRepository(ctx context.Context) RepositoryContext {
+	switch t := ctx.(type) {
+	case RepositoryContext:
+		return t
+	default:
+		return dbContext{ctx, rcp.db}
+	}
+}
+
+func (rcp repositoryContextProvider) WithTx(ctx context.Context) (TxContext, error) {
+	if t, ok := ctx.(txContext); ok {
+		return txContext{ctx, t.tx, true}, nil
+	}
+	db := rcp.db
+	if t, ok := ctx.(dbContext); ok {
+		db = t.db
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return txContext{}, errors.Wrap(err, "failed to start transaction")
+	}
+	return txContext{ctx, tx, false}, nil
 }
