@@ -10,7 +10,7 @@ type Event interface {
 }
 
 type VersionedEvent struct {
-	Event
+	Event   Event
 	Version uint64
 }
 
