@@ -16,7 +16,7 @@ func TestUser(t *testing.T) {
 	user := New(name, email, raw)
 	assert.Regexp("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", user.ID())
 	assert.Equal(name, user.Name())
-	assert.Equal(uint64(0), user.Version)
+	assert.Equal(uint64(1), user.Version())
 
 	assert.Nil(user.Authenticate(email, raw))
 	assert.NotNil(user.Authenticate(model.Email("hoge"), raw))
@@ -24,5 +24,5 @@ func TestUser(t *testing.T) {
 
 	user.UpdateProfile(model.UserName("updated"))
 	assert.Equal(model.UserName("updated"), user.Name())
-	assert.Equal(uint64(1), user.Version)
+	assert.Equal(uint64(2), user.Version())
 }
