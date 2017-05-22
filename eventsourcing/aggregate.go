@@ -1,4 +1,4 @@
-package common
+package eventsourcing
 
 type Aggregate interface {
 	Changes() []VersionedEvent

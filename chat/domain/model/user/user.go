@@ -5,6 +5,7 @@ import (
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/roommember"
 	"github.com/morikuni/chat/common"
+	"github.com/morikuni/chat/eventsourcing"
 	"github.com/pkg/errors"
 )
 
@@ -18,13 +19,13 @@ func New(name model.UserName, email model.Email, password model.Password) model.
 func newUser() *User {
 	s := &State{}
 	return &User{
-		common.NewAggregate(s),
+		eventsourcing.NewAggregate(s),
 		s,
 	}
 }
 
 type User struct {
-	common.Aggregate
+	eventsourcing.Aggregate
 
 	state *State
 }
@@ -55,19 +56,19 @@ type State struct {
 	authInfo AuthInfo
 }
 
-func (s *State) ReceiveCommand(command interface{}) (common.Event, error) {
+func (s *State) ReceiveCommand(command interface{}) (eventsourcing.Event, error) {
 	switch c := command.(type) {
 	case CreateUser:
 		id := common.NewUUID()
 		return UserCreated{
-			common.EventOf(id),
+			eventsourcing.EventOf(id),
 			model.UserID(id),
 			c.Name,
 			newAuthInfo(c.Email, c.Password),
 		}, nil
 	case UpdateProfile:
 		return UserProfileUpdated{
-			common.EventOf(string(s.id)),
+			eventsourcing.EventOf(string(s.id)),
 			c.Name,
 		}, nil
 	default:
@@ -75,7 +76,7 @@ func (s *State) ReceiveCommand(command interface{}) (common.Event, error) {
 	}
 }
 
-func (s *State) ReceiveEvent(event common.Event) error {
+func (s *State) ReceiveEvent(event eventsourcing.Event) error {
 	switch e := event.(type) {
 	case UserCreated:
 		s.id = e.ID
@@ -96,7 +97,7 @@ type CreateUser struct {
 }
 
 type UserCreated struct {
-	common.EventBase
+	eventsourcing.EventBase
 	ID       model.UserID
 	Name     model.UserName
 	AuthInfo AuthInfo
@@ -107,7 +108,7 @@ type UpdateProfile struct {
 }
 
 type UserProfileUpdated struct {
-	common.EventBase
+	eventsourcing.EventBase
 	Name model.UserName
 }
 

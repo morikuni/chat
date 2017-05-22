@@ -1,4 +1,4 @@
-package common
+package eventsourcing
 
 import (
 	"time"

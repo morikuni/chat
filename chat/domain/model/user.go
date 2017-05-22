@@ -2,11 +2,11 @@ package model
 
 import (
 	"context"
-	"github.com/morikuni/chat/common"
+	"github.com/morikuni/chat/eventsourcing"
 )
 
 type User interface {
-	common.Aggregate
+	eventsourcing.Aggregate
 
 	ID() UserID
 	Name() UserName
