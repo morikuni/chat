@@ -26,3 +26,7 @@ func (e EventBase) AggregateID() string {
 func (e EventBase) OccuredAt() time.Time {
 	return e.At
 }
+
+func EventOf(id string) EventBase {
+	return EventBase{id, time.Now()}
+}

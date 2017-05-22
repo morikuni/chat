@@ -1,47 +1,51 @@
 package common
 
-import "time"
-
 type Aggregate interface {
-	AggregateID() string
 	Changes() []VersionedEvent
+	Version() uint64
+	Handle(command Command) error
+	Replay(events ...VersionedEvent) error
+	Mutate(events ...Event) error
 }
 
-type AggregateBase struct {
-	id       string
+type aggregate struct {
 	changes  []VersionedEvent
 	version  uint64
-	receiver EventReceiver
+	behavior Behavior
 }
 
-type EventReceiver interface {
+type Behavior interface {
+	ReceiveCommand(command Command) (Event, error)
 	ReceiveEvent(event Event) error
 }
 
-func NewAggregateBase(aggregateID string, receiver EventReceiver) *AggregateBase {
-	return &AggregateBase{
-		aggregateID,
+func NewAggregate(behavior Behavior) *aggregate {
+	return &aggregate{
 		nil,
 		0,
-		receiver,
+		behavior,
 	}
 }
 
-func (a *AggregateBase) AggregateID() string {
-	return a.id
-}
-
-func (a *AggregateBase) Changes() []VersionedEvent {
+func (a *aggregate) Changes() []VersionedEvent {
 	return a.changes
 }
 
-func (a *AggregateBase) Version() uint64 {
+func (a *aggregate) Version() uint64 {
 	return a.version
 }
 
-func (a *AggregateBase) Replay(events ...VersionedEvent) error {
+func (a *aggregate) Handle(command Command) error {
+	event, err := a.behavior.ReceiveCommand(command)
+	if err != nil {
+		return err
+	}
+	return a.Mutate(event)
+}
+
+func (a *aggregate) Replay(events ...VersionedEvent) error {
 	for _, e := range events {
-		err := a.receiver.ReceiveEvent(e.Event)
+		err := a.behavior.ReceiveEvent(e.Event)
 		if err != nil {
 			return err
 		}
@@ -50,9 +54,9 @@ func (a *AggregateBase) Replay(events ...VersionedEvent) error {
 	return nil
 }
 
-func (a *AggregateBase) Mutate(events ...Event) error {
+func (a *aggregate) Mutate(events ...Event) error {
 	for _, e := range events {
-		err := a.receiver.ReceiveEvent(e)
+		err := a.behavior.ReceiveEvent(e)
 		if err != nil {
 			return err
 		}
@@ -60,8 +64,4 @@ func (a *AggregateBase) Mutate(events ...Event) error {
 		a.changes = append(a.changes, VersionedEvent{e, a.version})
 	}
 	return nil
-}
-
-func (a *AggregateBase) EventBase() EventBase {
-	return EventBase{a.id, time.Now()}
 }

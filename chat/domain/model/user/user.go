@@ -10,26 +10,18 @@ import (
 
 func New(name model.UserName, email model.Email, password model.Password) *User {
 	s := &UserState{}
-	id := common.NewUUID()
 	u := &User{
-		common.NewAggregateBase(id, s),
+		common.NewAggregate(s),
 		s,
 	}
 
-	event := UserCreated{
-		u.EventBase(),
-		model.UserID(id),
-		name,
-		newAuthInfo(email, password),
-	}
-
-	u.Mutate(event)
+	u.Handle(CreateUser{name, email, password})
 
 	return u
 }
 
 type User struct {
-	*common.AggregateBase
+	common.Aggregate
 
 	state *UserState
 }
@@ -51,13 +43,33 @@ func (u *User) JoinRoom(room model.Room) model.RoomMember {
 }
 
 func (u *User) UpdateProfile(name model.UserName) {
-	u.Mutate(u.state.UpdateProfile(u.EventBase(), name))
+	u.Handle(UpdateProfile{name})
 }
 
 type UserState struct {
 	id       model.UserID
 	name     model.UserName
 	authInfo AuthInfo
+}
+
+func (s *UserState) ReceiveCommand(command common.Command) (common.Event, error) {
+	switch c := command.(type) {
+	case CreateUser:
+		id := common.NewUUID()
+		return UserCreated{
+			common.EventOf(id),
+			model.UserID(id),
+			c.Name,
+			newAuthInfo(c.Email, c.Password),
+		}, nil
+	case UpdateProfile:
+		return UserProfileUpdated{
+			common.EventOf(string(s.id)),
+			c.Name,
+		}, nil
+	default:
+		return nil, errors.Errorf("unexpected command: %#v", c)
+	}
 }
 
 func (s *UserState) ReceiveEvent(event common.Event) error {
@@ -78,11 +90,21 @@ func (s *UserState) UpdateProfile(e common.EventBase, name model.UserName) commo
 	return UserProfileUpdated{e, name}
 }
 
+type CreateUser struct {
+	Name     model.UserName
+	Email    model.Email
+	Password model.Password
+}
+
 type UserCreated struct {
 	common.EventBase
 	ID       model.UserID
 	Name     model.UserName
 	AuthInfo AuthInfo
+}
+
+type UpdateProfile struct {
+	Name model.UserName
 }
 
 type UserProfileUpdated struct {
