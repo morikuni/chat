@@ -55,7 +55,7 @@ type State struct {
 	authInfo AuthInfo
 }
 
-func (s *State) ReceiveCommand(command common.Command) (common.Event, error) {
+func (s *State) ReceiveCommand(command interface{}) (common.Event, error) {
 	switch c := command.(type) {
 	case CreateUser:
 		id := common.NewUUID()

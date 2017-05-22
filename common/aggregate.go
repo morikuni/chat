@@ -3,7 +3,7 @@ package common
 type Aggregate interface {
 	Changes() []VersionedEvent
 	Version() uint64
-	Handle(command Command) error
+	Handle(command interface{}) error
 	Replay(events ...VersionedEvent) error
 }
 
@@ -14,7 +14,7 @@ type aggregate struct {
 }
 
 type Behavior interface {
-	ReceiveCommand(command Command) (Event, error)
+	ReceiveCommand(command interface{}) (Event, error)
 	ReceiveEvent(event Event) error
 }
 
@@ -34,7 +34,7 @@ func (a *aggregate) Version() uint64 {
 	return a.version
 }
 
-func (a *aggregate) Handle(command Command) error {
+func (a *aggregate) Handle(command interface{}) error {
 	event, err := a.behavior.ReceiveCommand(command)
 	if err != nil {
 		return err
