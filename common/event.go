@@ -15,18 +15,14 @@ type VersionedEvent struct {
 }
 
 type EventBase struct {
-	aggregateID string
-	occuredAt   time.Time
+	ID string
+	At time.Time
 }
 
 func (e EventBase) AggregateID() string {
-	return e.aggregateID
+	return e.ID
 }
 
 func (e EventBase) OccuredAt() time.Time {
-	return e.occuredAt
-}
-
-func EventOf(id string) EventBase {
-	return EventBase{id, time.Now()}
+	return e.At
 }

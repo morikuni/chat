@@ -1,10 +1,14 @@
 package common
 
+import "time"
+
 type Aggregate interface {
+	AggregateID() string
 	Changes() []VersionedEvent
 }
 
 type AggregateBase struct {
+	id       string
 	changes  []VersionedEvent
 	version  uint64
 	receiver EventReceiver
@@ -14,12 +18,17 @@ type EventReceiver interface {
 	ReceiveEvent(event Event) error
 }
 
-func NewAggregateBase(receiver EventReceiver) *AggregateBase {
+func NewAggregateBase(aggregateID string, receiver EventReceiver) *AggregateBase {
 	return &AggregateBase{
+		aggregateID,
 		nil,
 		0,
 		receiver,
 	}
+}
+
+func (a *AggregateBase) AggregateID() string {
+	return a.id
 }
 
 func (a *AggregateBase) Changes() []VersionedEvent {
@@ -51,4 +60,8 @@ func (a *AggregateBase) Mutate(events ...Event) error {
 		a.changes = append(a.changes, VersionedEvent{e, a.version})
 	}
 	return nil
+}
+
+func (a *AggregateBase) EventBase() EventBase {
+	return EventBase{a.id, time.Now()}
 }

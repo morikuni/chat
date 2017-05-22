@@ -10,14 +10,14 @@ import (
 
 func New(name model.UserName, email model.Email, password model.Password) *User {
 	s := &UserState{}
+	id := common.NewUUID()
 	u := &User{
-		common.NewAggregateBase(s),
+		common.NewAggregateBase(id, s),
 		s,
 	}
-	id := common.NewUUID()
 
 	event := UserCreated{
-		common.EventOf(id),
+		u.EventBase(),
 		model.UserID(id),
 		name,
 		newAuthInfo(email, password),
@@ -51,7 +51,7 @@ func (u *User) JoinRoom(room model.Room) model.RoomMember {
 }
 
 func (u *User) UpdateProfile(name model.UserName) {
-	u.Mutate(u.state.UpdateProfile(name))
+	u.Mutate(u.state.UpdateProfile(u.EventBase(), name))
 }
 
 type UserState struct {
@@ -74,8 +74,8 @@ func (s *UserState) ReceiveEvent(event common.Event) error {
 	return nil
 }
 
-func (s *UserState) UpdateProfile(name model.UserName) common.Event {
-	return UserProfileUpdated{common.EventOf(string(s.id)), name}
+func (s *UserState) UpdateProfile(e common.EventBase, name model.UserName) common.Event {
+	return UserProfileUpdated{e, name}
 }
 
 type UserCreated struct {
