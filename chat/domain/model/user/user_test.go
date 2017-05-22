@@ -25,4 +25,8 @@ func TestUser(t *testing.T) {
 	user.UpdateProfile(model.UserName("updated"))
 	assert.Equal(model.UserName("updated"), user.Name())
 	assert.Equal(uint64(2), user.Version())
+
+	assert.Len(user.Changes(), 2)
+	assert.IsType(UserCreated{}, user.Changes()[0].Event)
+	assert.IsType(UserProfileUpdated{}, user.Changes()[1].Event)
 }

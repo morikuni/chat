@@ -5,7 +5,6 @@ type Aggregate interface {
 	Version() uint64
 	Handle(command Command) error
 	Replay(events ...VersionedEvent) error
-	Mutate(events ...Event) error
 }
 
 type aggregate struct {
@@ -19,7 +18,7 @@ type Behavior interface {
 	ReceiveEvent(event Event) error
 }
 
-func NewAggregate(behavior Behavior) *aggregate {
+func NewAggregate(behavior Behavior) Aggregate {
 	return &aggregate{
 		nil,
 		0,

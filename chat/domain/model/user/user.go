@@ -8,22 +8,25 @@ import (
 	"github.com/pkg/errors"
 )
 
-func New(name model.UserName, email model.Email, password model.Password) *User {
-	s := &UserState{}
-	u := &User{
-		common.NewAggregate(s),
-		s,
-	}
-
+func New(name model.UserName, email model.Email, password model.Password) model.User {
+	u := newUser()
 	u.Handle(CreateUser{name, email, password})
 
 	return u
 }
 
+func newUser() *User {
+	s := &State{}
+	return &User{
+		common.NewAggregate(s),
+		s,
+	}
+}
+
 type User struct {
 	common.Aggregate
 
-	state *UserState
+	state *State
 }
 
 func (u *User) ID() model.UserID {
@@ -46,13 +49,13 @@ func (u *User) UpdateProfile(name model.UserName) {
 	u.Handle(UpdateProfile{name})
 }
 
-type UserState struct {
+type State struct {
 	id       model.UserID
 	name     model.UserName
 	authInfo AuthInfo
 }
 
-func (s *UserState) ReceiveCommand(command common.Command) (common.Event, error) {
+func (s *State) ReceiveCommand(command common.Command) (common.Event, error) {
 	switch c := command.(type) {
 	case CreateUser:
 		id := common.NewUUID()
@@ -72,7 +75,7 @@ func (s *UserState) ReceiveCommand(command common.Command) (common.Event, error)
 	}
 }
 
-func (s *UserState) ReceiveEvent(event common.Event) error {
+func (s *State) ReceiveEvent(event common.Event) error {
 	switch e := event.(type) {
 	case UserCreated:
 		s.id = e.ID
@@ -84,10 +87,6 @@ func (s *UserState) ReceiveEvent(event common.Event) error {
 		return errors.Errorf("unexpected event: %#v", e)
 	}
 	return nil
-}
-
-func (s *UserState) UpdateProfile(e common.EventBase, name model.UserName) common.Event {
-	return UserProfileUpdated{e, name}
 }
 
 type CreateUser struct {

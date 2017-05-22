@@ -1,8 +1,13 @@
 package model
 
-import "context"
+import (
+	"context"
+	"github.com/morikuni/chat/common"
+)
 
 type User interface {
+	common.Aggregate
+
 	ID() UserID
 	Name() UserName
 	Authenticate(email Email, password Password) error
