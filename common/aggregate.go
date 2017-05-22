@@ -4,7 +4,7 @@ type Aggregate interface {
 	Changes() []VersionedEvent
 	Version() uint64
 	Handle(command interface{}) error
-	Replay(events ...VersionedEvent) error
+	Replay(events []VersionedEvent) error
 }
 
 type aggregate struct {
@@ -42,7 +42,7 @@ func (a *aggregate) Handle(command interface{}) error {
 	return a.Mutate(event)
 }
 
-func (a *aggregate) Replay(events ...VersionedEvent) error {
+func (a *aggregate) Replay(events []VersionedEvent) error {
 	for _, e := range events {
 		err := a.behavior.ReceiveEvent(e.Event)
 		if err != nil {
