@@ -5,7 +5,10 @@ import (
 	"reflect"
 )
 
-type Type string
+type Type struct {
+	Package string
+	Name    string
+}
 
 type Serializer interface {
 	Serialize(event Event) ([]byte, error)
@@ -47,5 +50,5 @@ func (s *jsonSerializer) Deserialize(typ Type, data []byte) (Event, error) {
 
 func TypeOf(event Event) Type {
 	t := reflect.TypeOf(event)
-	return Type(t.PkgPath() + "." + t.Name())
+	return Type{t.PkgPath(), t.Name()}
 }
