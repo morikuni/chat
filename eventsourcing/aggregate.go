@@ -1,20 +1,25 @@
 package eventsourcing
 
+import (
+	"time"
+)
+
 type Aggregate interface {
-	Changes() []VersionedEvent
-	Version() uint64
-	Handle(command interface{}) error
-	Replay(events []VersionedEvent) error
+	Changes() []MetaEvent
+	Version() Version
+	Handle(command Command) error
+	Replay(events []MetaEvent) error
 }
 
 type aggregate struct {
-	changes  []VersionedEvent
-	version  uint64
+	changes  []MetaEvent
+	version  Version
 	behavior Behavior
 }
 
 type Behavior interface {
-	ReceiveCommand(command interface{}) (Event, error)
+	ID() string
+	ReceiveCommand(command Command) (Event, error)
 	ReceiveEvent(event Event) error
 }
 
@@ -26,15 +31,15 @@ func NewAggregate(behavior Behavior) Aggregate {
 	}
 }
 
-func (a *aggregate) Changes() []VersionedEvent {
+func (a *aggregate) Changes() []MetaEvent {
 	return a.changes
 }
 
-func (a *aggregate) Version() uint64 {
+func (a *aggregate) Version() Version {
 	return a.version
 }
 
-func (a *aggregate) Handle(command interface{}) error {
+func (a *aggregate) Handle(command Command) error {
 	event, err := a.behavior.ReceiveCommand(command)
 	if err != nil {
 		return err
@@ -42,25 +47,33 @@ func (a *aggregate) Handle(command interface{}) error {
 	return a.Mutate(event)
 }
 
-func (a *aggregate) Replay(events []VersionedEvent) error {
+func (a *aggregate) Replay(events []MetaEvent) error {
 	for _, e := range events {
-		err := a.behavior.ReceiveEvent(e.Event)
+		err := a.behavior.ReceiveEvent(e.Data)
 		if err != nil {
 			return err
 		}
-		a.version = e.Version
+		a.version = e.Metadata.Version
 	}
 	return nil
 }
 
-func (a *aggregate) Mutate(events ...Event) error {
+func (a *aggregate) Mutate(events ...interface{}) error {
 	for _, e := range events {
 		err := a.behavior.ReceiveEvent(e)
 		if err != nil {
 			return err
 		}
 		a.version += 1
-		a.changes = append(a.changes, VersionedEvent{e, a.version})
+		a.changes = append(a.changes, MetaEvent{
+			Metadata{
+				a.behavior.ID(),
+				time.Now(),
+				a.version,
+				TypeOf(e),
+			},
+			e,
+		})
 	}
 	return nil
 }

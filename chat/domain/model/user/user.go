@@ -56,19 +56,21 @@ type State struct {
 	authInfo AuthInfo
 }
 
-func (s *State) ReceiveCommand(command interface{}) (eventsourcing.Event, error) {
+func (s *State) ID() string {
+	return string(s.id)
+}
+
+func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Event, error) {
 	switch c := command.(type) {
 	case CreateUser:
 		id := common.NewUUID()
 		return UserCreated{
-			eventsourcing.EventOf(id),
 			model.UserID(id),
 			c.Name,
 			newAuthInfo(c.Email, c.Password),
 		}, nil
 	case UpdateProfile:
 		return UserProfileUpdated{
-			eventsourcing.EventOf(string(s.id)),
 			c.Name,
 		}, nil
 	default:
@@ -97,7 +99,6 @@ type CreateUser struct {
 }
 
 type UserCreated struct {
-	eventsourcing.EventBase
 	ID       model.UserID
 	Name     model.UserName
 	AuthInfo AuthInfo
@@ -108,7 +109,6 @@ type UpdateProfile struct {
 }
 
 type UserProfileUpdated struct {
-	eventsourcing.EventBase
 	Name model.UserName
 }
 

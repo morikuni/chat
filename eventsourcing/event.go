@@ -4,29 +4,25 @@ import (
 	"time"
 )
 
-type Event interface {
-	AggregateID() string
-	OccuredAt() time.Time
-}
+type Command interface{}
+
+type Event interface{}
+
+type Version uint64
 
 type VersionedEvent struct {
 	Event   Event
-	Version uint64
+	Version Version
 }
 
-type EventBase struct {
-	ID string
-	At time.Time
+type MetaEvent struct {
+	Metadata Metadata
+	Data     Event
 }
 
-func (e EventBase) AggregateID() string {
-	return e.ID
-}
-
-func (e EventBase) OccuredAt() time.Time {
-	return e.At
-}
-
-func EventOf(id string) EventBase {
-	return EventBase{id, time.Now()}
+type Metadata struct {
+	AggregateID string
+	OccuredAt   time.Time
+	Version     Version
+	Type        Type
 }
