@@ -58,7 +58,7 @@ func (a *aggregate) Replay(events []MetaEvent) error {
 	return nil
 }
 
-func (a *aggregate) Mutate(events ...interface{}) error {
+func (a *aggregate) Mutate(events ...Event) error {
 	for _, e := range events {
 		err := a.behavior.ReceiveEvent(e)
 		if err != nil {
