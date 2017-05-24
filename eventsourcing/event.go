@@ -10,11 +10,6 @@ type Event interface{}
 
 type Version uint64
 
-type VersionedEvent struct {
-	Event   Event
-	Version Version
-}
-
 type MetaEvent struct {
 	Metadata Metadata
 	Data     Event
