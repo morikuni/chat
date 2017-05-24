@@ -35,7 +35,7 @@ func (s *memoryStore) Save(ctx context.Context, changes []MetaEvent) error {
 				return RaiseEventVersionConflictError(change)
 			}
 		}
-		data, err := s.serializer.Serialize(change.Data)
+		data, err := s.serializer.Serialize(change.Event)
 		if err != nil {
 			return err
 		}

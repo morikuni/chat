@@ -33,5 +33,5 @@ func RaiseUnknownEventError(typ Type) UnknowEventError {
 }
 
 func RaiseEventVersionConflictError(event MetaEvent) EventVersionConflictError {
-	return EventVersionConflictError{ErrorOf(fmt.Sprintf("event version conflict: meta=%#v event=%#v", event.Metadata, event.Data))}
+	return EventVersionConflictError{ErrorOf(fmt.Sprintf("event version conflict: meta=%#v event=%#v", event.Metadata, event.Event))}
 }

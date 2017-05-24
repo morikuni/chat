@@ -12,7 +12,7 @@ type Version uint64
 
 type MetaEvent struct {
 	Metadata Metadata
-	Data     Event
+	Event    Event
 }
 
 type Metadata struct {

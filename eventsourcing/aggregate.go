@@ -49,7 +49,7 @@ func (a *aggregate) Handle(command Command) error {
 
 func (a *aggregate) Replay(events []MetaEvent) error {
 	for _, e := range events {
-		err := a.behavior.ReceiveEvent(e.Data)
+		err := a.behavior.ReceiveEvent(e.Event)
 		if err != nil {
 			return err
 		}
