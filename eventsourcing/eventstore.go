@@ -3,6 +3,8 @@ package eventsourcing
 import (
 	"context"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 type EventStore interface {
@@ -32,12 +34,12 @@ func (s *memoryStore) Save(ctx context.Context, changes []MetaEvent) error {
 		records := s.memory[change.Metadata.AggregateID]
 		for _, r := range records {
 			if r.Metadata.Version == change.Metadata.Version {
-				return RaiseEventVersionConflictError(change)
+				return errors.WithStack(RaiseEventVersionConflictError(change))
 			}
 		}
 		data, err := s.serializer.Serialize(change.Event)
 		if err != nil {
-			return err
+			return errors.WithMessage(err, "failed to serialize event")
 		}
 		s.memory[change.Metadata.AggregateID] = append(records, record{change.Metadata, data})
 	}
@@ -50,11 +52,15 @@ func (s *memoryStore) Find(ctx context.Context, aggregateID string) ([]MetaEvent
 	defer s.mu.RUnlock()
 
 	records := s.memory[aggregateID]
+	if len(records) == 0 {
+		return nil, ErrNoEventsFound
+	}
+
 	events := make([]MetaEvent, len(records))
 	for i, r := range records {
-		event, err := s.serializer.Deserialize(r.Metadata.Type, r.Event)
+		event, err := s.serializer.Deserialize(r.Metadata.Type, r.Data)
 		if err != nil {
-			return nil, err
+			return nil, errors.WithMessage(err, "failed to deserialize data")
 		}
 		events[i] = MetaEvent{r.Metadata, event}
 	}
@@ -63,5 +69,5 @@ func (s *memoryStore) Find(ctx context.Context, aggregateID string) ([]MetaEvent
 
 type record struct {
 	Metadata Metadata
-	Event    []byte
+	Data     []byte
 }

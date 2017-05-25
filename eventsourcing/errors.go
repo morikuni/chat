@@ -26,6 +26,11 @@ func ErrorOf(message string) EventSourcingError {
 type (
 	UnknowEventError          struct{ EventSourcingError }
 	EventVersionConflictError struct{ EventSourcingError }
+	NoEventsFoundError        struct{ EventSourcingError }
+)
+
+var (
+	ErrNoEventsFound = NoEventsFoundError{ErrorOf("no events found")}
 )
 
 func RaiseUnknownEventError(typ Type) UnknowEventError {

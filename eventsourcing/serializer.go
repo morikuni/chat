@@ -3,6 +3,8 @@ package eventsourcing
 import (
 	"encoding/json"
 	"reflect"
+
+	"github.com/pkg/errors"
 )
 
 type Type struct {
@@ -30,20 +32,24 @@ func NewJSONSerializer(events ...Event) Serializer {
 func (s *jsonSerializer) Serialize(event Event) ([]byte, error) {
 	typ := TypeOf(event)
 	if _, ok := s.eventMap[typ]; !ok {
-		return nil, RaiseUnknownEventError(typ)
+		return nil, errors.WithStack(RaiseUnknownEventError(typ))
 	}
-	return json.Marshal(event)
+	data, err := json.Marshal(event)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to marshal event")
+	}
+	return data, nil
 }
 
 func (s *jsonSerializer) Deserialize(typ Type, data []byte) (Event, error) {
 	t, ok := s.eventMap[typ]
 	if !ok {
-		return nil, RaiseUnknownEventError(typ)
+		return nil, errors.WithStack(RaiseUnknownEventError(typ))
 	}
 	event := reflect.New(t).Interface()
 	err := json.Unmarshal(data, &event)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to unmarshal data")
 	}
 	return reflect.ValueOf(event).Elem().Interface().(Event), nil
 }
