@@ -1,9 +1,11 @@
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/morikuni/chat/chat/domain/model"
+	"github.com/morikuni/chat/eventsourcing"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,4 +31,14 @@ func TestUser(t *testing.T) {
 	assert.Len(user.Changes(), 2)
 	assert.IsType(UserCreated{}, user.Changes()[0].Event)
 	assert.IsType(UserProfileUpdated{}, user.Changes()[1].Event)
+
+	serializer := eventsourcing.NewJSONSerializer(UserCreated{}, UserProfileUpdated{})
+	store := eventsourcing.NewMemoryEventStore(serializer)
+	err := store.Save(context.TODO(), user.Changes())
+	assert.NoError(err)
+
+	repo := NewRepository(store)
+	user2, err := repo.Find(context.TODO(), user.ID())
+	assert.NoError(err)
+	assert.Equal(user.(*User).state, user2.(*User).state)
 }
