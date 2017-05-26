@@ -20,7 +20,5 @@ type UserID string
 type UserName string
 
 type UserRepository interface {
-	Append(ctx context.Context, user User) error
-	Save(ctx context.Context, user User) error
 	Find(ctx context.Context, id UserID) (User, error)
 }

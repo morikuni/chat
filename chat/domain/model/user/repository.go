@@ -2,47 +2,35 @@ package user
 
 import (
 	"context"
-	"sync"
 
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
+	"github.com/morikuni/chat/eventsourcing"
+	"github.com/pkg/errors"
 )
 
-func NewRepository() model.UserRepository {
-	return &inMemoryRepo{
-		make(map[model.UserID]model.User),
-		sync.RWMutex{},
+func NewRepository(store eventsourcing.EventStore) model.UserRepository {
+	return repository{
+		store,
 	}
 }
 
-type inMemoryRepo struct {
-	memory map[model.UserID]model.User
-	mu     sync.RWMutex
+type repository struct {
+	store eventsourcing.EventStore
 }
 
-func (r *inMemoryRepo) Append(ctx context.Context, user model.User) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if _, ok := r.memory[user.ID()]; ok {
-		return domain.ErrEntityAlreadyExist
+func (r repository) Find(ctx context.Context, id model.UserID) (model.User, error) {
+	events, err := r.store.Find(ctx, string(id))
+	switch {
+	case err == eventsourcing.ErrNoEventsFound:
+		return nil, errors.WithStack(domain.ErrNoSuchEntity)
+	case err != nil:
+		return nil, errors.Wrap(err, "failed to find events for user")
 	}
-	r.memory[user.ID()] = user
-	return nil
-}
-
-func (r *inMemoryRepo) Save(ctx context.Context, user model.User) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.memory[user.ID()] = user
-	return nil
-}
-
-func (r *inMemoryRepo) Find(ctx context.Context, id model.UserID) (model.User, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	u, ok := r.memory[id]
-	if !ok {
-		return nil, domain.ErrNoSuchEntity
+	u := newUser()
+	err = u.Replay(events)
+	if err != nil {
+		return nil, errors.WithMessage(err, "failed to replay events")
 	}
 	return u, nil
 }
