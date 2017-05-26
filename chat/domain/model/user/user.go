@@ -74,7 +74,7 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 			c.Name,
 		}, nil
 	default:
-		return nil, errors.Errorf("unexpected command: %#v", c)
+		return nil, errors.WithStack(domain.RaiseUnexpectedCommandError(c))
 	}
 }
 
@@ -87,7 +87,7 @@ func (s *State) ReceiveEvent(event eventsourcing.Event) error {
 	case UserProfileUpdated:
 		s.name = e.Name
 	default:
-		return errors.Errorf("unexpected event: %#v", e)
+		return errors.WithStack(domain.RaiseUnexpectedEventError(e))
 	}
 	return nil
 }

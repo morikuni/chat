@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"fmt"
+	"github.com/morikuni/chat/eventsourcing"
+)
+
 type DomainError interface {
 	error
 	domainError()
@@ -23,6 +28,8 @@ type (
 	NoSuchEntityError       struct{ DomainError }
 	EntityAlreadyExistError struct{ DomainError }
 	ValidationError         struct{ DomainError }
+	UnexpectedCommandError  struct{ DomainError }
+	UnexpectedEventError    struct{ DomainError }
 )
 
 var (
@@ -32,4 +39,12 @@ var (
 
 func RaiseValidationError(message string) ValidationError {
 	return ValidationError{ErrorOf(message)}
+}
+
+func RaiseUnexpectedCommandError(command eventsourcing.Command) ValidationError {
+	return ValidationError{ErrorOf(fmt.Sprintf("unexpected command: %#v", command))}
+}
+
+func RaiseUnexpectedEventError(event eventsourcing.Event) ValidationError {
+	return ValidationError{ErrorOf(fmt.Sprintf("unexpected event: %#v", event))}
 }
