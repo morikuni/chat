@@ -22,7 +22,7 @@ type repository struct {
 func (r repository) Find(ctx context.Context, id model.UserID) (model.User, error) {
 	events, err := r.store.Find(ctx, string(id))
 	switch {
-	case err == eventsourcing.ErrNoEventsFound:
+	case errors.Cause(err) == eventsourcing.ErrNoEventsFound:
 		return nil, errors.WithStack(domain.ErrNoSuchEntity)
 	case err != nil:
 		return nil, errors.Wrap(err, "failed to find events for user")
