@@ -11,7 +11,10 @@ import (
 
 func New(name model.UserName, email model.Email, password model.Password) model.User {
 	u := newUser()
-	u.Handle(CreateUser{name, email, password})
+	err := u.Handle(CreateUser{name, email, password})
+	if err != nil {
+		panic(err)
+	}
 
 	return u
 }
@@ -47,7 +50,10 @@ func (u *User) JoinRoom(room model.Room) model.RoomMember {
 }
 
 func (u *User) UpdateProfile(name model.UserName) {
-	u.Handle(UpdateProfile{name})
+	err := u.Handle(UpdateProfile{name})
+	if err != nil {
+		panic(err)
+	}
 }
 
 type State struct {
