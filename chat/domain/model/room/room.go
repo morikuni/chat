@@ -3,25 +3,50 @@ package room
 import (
 	"time"
 
+	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/common"
+	"github.com/morikuni/chat/eventsourcing"
+	"github.com/pkg/errors"
 )
 
 func New(category model.Category, name model.RoomName, description model.RoomDescription) *Room {
-	return &Room{
-		common.Aggregate{},
+	r := newRoom()
+	err := r.Handle(CreateRoom{name, description, category.ID()})
+	if err != nil {
+		panic(err)
+	}
 
-		model.RoomID(common.NewUUID()),
-		name,
-		description,
-		category.ID(),
-		time.Now(),
+	return r
+}
+
+func newRoom() *Room {
+	s := &State{}
+	return &Room{
+		eventsourcing.NewAggregate(s),
+		s,
 	}
 }
 
 type Room struct {
-	common.Aggregate
+	eventsourcing.Aggregate
 
+	state *State
+}
+
+func (r *Room) ID() model.RoomID {
+	return r.state.id
+}
+
+func (r *Room) Name() model.RoomName {
+	return r.state.name
+}
+
+func (r *Room) Description() model.RoomDescription {
+	return r.state.description
+}
+
+type State struct {
 	id          model.RoomID
 	name        model.RoomName
 	description model.RoomDescription
@@ -29,16 +54,52 @@ type Room struct {
 	createdAt   time.Time
 }
 
-func (r *Room) ID() model.RoomID {
-	return r.id
+func (s *State) ID() string {
+	return string(s.id)
 }
 
-func (r *Room) Name() model.RoomName {
-	return r.name
+func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Event, error) {
+	switch c := command.(type) {
+	case CreateRoom:
+		id := common.NewUUID()
+		return RoomCreated{
+			model.RoomID(id),
+			c.Name,
+			c.Description,
+			c.CategoryID,
+			time.Now(),
+		}, nil
+	default:
+		return nil, errors.WithStack(domain.RaiseUnexpectedCommandError(c))
+	}
 }
 
-func (r *Room) Description() model.RoomDescription {
-	return r.description
+func (s *State) ReceiveEvent(event eventsourcing.Event) error {
+	switch e := event.(type) {
+	case RoomCreated:
+		s.id = e.ID
+		s.name = e.Name
+		s.description = e.Description
+		s.categoryID = e.CategoryID
+		s.createdAt = e.CreatedAt
+	default:
+		return errors.WithStack(domain.RaiseUnexpectedEventError(e))
+	}
+	return nil
+}
+
+type CreateRoom struct {
+	Name        model.RoomName
+	Description model.RoomDescription
+	CategoryID  model.CategoryID
+}
+
+type RoomCreated struct {
+	ID          model.RoomID
+	Name        model.RoomName
+	Description model.RoomDescription
+	CategoryID  model.CategoryID
+	CreatedAt   time.Time
 }
 
 func NewID(id string) model.RoomID {
