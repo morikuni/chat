@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/morikuni/chat/chat/domain/event"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/eventsourcing"
 	"github.com/stretchr/testify/assert"
@@ -29,10 +30,10 @@ func TestUser(t *testing.T) {
 	assert.Equal(eventsourcing.Version(2), user.Version())
 
 	assert.Len(user.Changes(), 2)
-	assert.IsType(UserCreated{}, user.Changes()[0].Event)
-	assert.IsType(UserProfileUpdated{}, user.Changes()[1].Event)
+	assert.IsType(event.UserCreated{}, user.Changes()[0].Event)
+	assert.IsType(event.UserProfileUpdated{}, user.Changes()[1].Event)
 
-	serializer := eventsourcing.NewJSONSerializer(UserCreated{}, UserProfileUpdated{})
+	serializer := eventsourcing.NewJSONSerializer(event.UserCreated{}, event.UserProfileUpdated{})
 	store := eventsourcing.NewMemoryEventStore(serializer)
 	err := store.Save(context.TODO(), user.Changes())
 	assert.NoError(err)

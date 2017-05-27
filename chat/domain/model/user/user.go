@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/morikuni/chat/chat/domain"
+	"github.com/morikuni/chat/chat/domain/event"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/roommember"
 	"github.com/morikuni/chat/common"
@@ -70,13 +71,16 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	switch c := command.(type) {
 	case CreateUser:
 		id := common.NewUUID()
-		return UserCreated{
+		authInfo := newAuthInfo(c.Email, c.Password)
+		return event.UserCreated{
 			model.UserID(id),
 			c.Name,
-			newAuthInfo(c.Email, c.Password),
+			authInfo.Email,
+			authInfo.Password.Hash,
+			authInfo.Password.Salt,
 		}, nil
 	case UpdateProfile:
-		return UserProfileUpdated{
+		return event.UserProfileUpdated{
 			c.Name,
 		}, nil
 	default:
@@ -84,13 +88,15 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	}
 }
 
-func (s *State) ReceiveEvent(event eventsourcing.Event) error {
-	switch e := event.(type) {
-	case UserCreated:
+func (s *State) ReceiveEvent(e eventsourcing.Event) error {
+	switch e := e.(type) {
+	case event.UserCreated:
 		s.id = e.ID
 		s.name = e.Name
-		s.authInfo = e.AuthInfo
-	case UserProfileUpdated:
+		s.authInfo.Email = e.Email
+		s.authInfo.Password.Hash = e.PasswordHash
+		s.authInfo.Password.Salt = e.Salt
+	case event.UserProfileUpdated:
 		s.name = e.Name
 	default:
 		return errors.WithStack(domain.RaiseUnexpectedEventError(e))
@@ -104,17 +110,7 @@ type CreateUser struct {
 	Password model.Password
 }
 
-type UserCreated struct {
-	ID       model.UserID
-	Name     model.UserName
-	AuthInfo AuthInfo
-}
-
 type UpdateProfile struct {
-	Name model.UserName
-}
-
-type UserProfileUpdated struct {
 	Name model.UserName
 }
 

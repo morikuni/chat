@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/morikuni/chat/chat/domain"
+	"github.com/morikuni/chat/chat/domain/event"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/common"
 	"github.com/morikuni/chat/eventsourcing"
@@ -62,7 +63,7 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	switch c := command.(type) {
 	case CreateRoom:
 		id := common.NewUUID()
-		return RoomCreated{
+		return event.RoomCreated{
 			model.RoomID(id),
 			c.Name,
 			c.Description,
@@ -74,9 +75,9 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	}
 }
 
-func (s *State) ReceiveEvent(event eventsourcing.Event) error {
-	switch e := event.(type) {
-	case RoomCreated:
+func (s *State) ReceiveEvent(e eventsourcing.Event) error {
+	switch e := e.(type) {
+	case event.RoomCreated:
 		s.id = e.ID
 		s.name = e.Name
 		s.description = e.Description
@@ -92,14 +93,6 @@ type CreateRoom struct {
 	Name        model.RoomName
 	Description model.RoomDescription
 	CategoryID  model.CategoryID
-}
-
-type RoomCreated struct {
-	ID          model.RoomID
-	Name        model.RoomName
-	Description model.RoomDescription
-	CategoryID  model.CategoryID
-	CreatedAt   time.Time
 }
 
 func NewID(id string) model.RoomID {

@@ -2,6 +2,7 @@ package category
 
 import (
 	"github.com/morikuni/chat/chat/domain"
+	"github.com/morikuni/chat/chat/domain/event"
 	"github.com/morikuni/chat/chat/domain/model"
 	"github.com/morikuni/chat/chat/domain/model/room"
 	"github.com/morikuni/chat/common"
@@ -58,7 +59,7 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	switch c := command.(type) {
 	case CreateCategory:
 		id := common.NewUUID()
-		return CategoryCreated{
+		return event.CategoryCreated{
 			model.CategoryID(id),
 			c.Name,
 		}, nil
@@ -67,9 +68,9 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 	}
 }
 
-func (s *State) ReceiveEvent(event eventsourcing.Event) error {
-	switch e := event.(type) {
-	case CategoryCreated:
+func (s *State) ReceiveEvent(e eventsourcing.Event) error {
+	switch e := e.(type) {
+	case event.CategoryCreated:
 		s.id = e.ID
 		s.name = e.Name
 	default:
@@ -79,11 +80,6 @@ func (s *State) ReceiveEvent(event eventsourcing.Event) error {
 }
 
 type CreateCategory struct {
-	Name model.CategoryName
-}
-
-type CategoryCreated struct {
-	ID   model.CategoryID
 	Name model.CategoryName
 }
 
