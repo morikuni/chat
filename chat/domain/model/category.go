@@ -1,8 +1,14 @@
 package model
 
-import "context"
+import (
+	"context"
+
+	"github.com/morikuni/chat/eventsourcing"
+)
 
 type Category interface {
+	eventsourcing.Aggregate
+
 	ID() CategoryID
 	Name() CategoryName
 	AddRoom(name RoomName, description RoomDescription) Room
