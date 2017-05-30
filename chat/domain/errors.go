@@ -27,7 +27,6 @@ func ErrorOf(message string) DomainError {
 type (
 	NoSuchEntityError       struct{ DomainError }
 	EntityAlreadyExistError struct{ DomainError }
-	ValidationError         struct{ DomainError }
 	UnexpectedCommandError  struct{ DomainError }
 	UnexpectedEventError    struct{ DomainError }
 )
@@ -38,7 +37,7 @@ var (
 )
 
 func RaiseValidationError(message string) ValidationError {
-	return ValidationError{ErrorOf(message)}
+	return validationError{ErrorOf(message)}
 }
 
 func RaiseUnexpectedCommandError(command eventsourcing.Command) UnexpectedCommandError {
@@ -48,3 +47,14 @@ func RaiseUnexpectedCommandError(command eventsourcing.Command) UnexpectedComman
 func RaiseUnexpectedEventError(event eventsourcing.Event) UnexpectedEventError {
 	return UnexpectedEventError{ErrorOf(fmt.Sprintf("unexpected event: %#v", event))}
 }
+
+type ValidationError interface {
+	DomainError
+	validationError()
+}
+
+type validationError struct {
+	DomainError
+}
+
+func (e validationError) validationError() {}
