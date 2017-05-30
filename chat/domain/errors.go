@@ -41,10 +41,10 @@ func RaiseValidationError(message string) ValidationError {
 	return ValidationError{ErrorOf(message)}
 }
 
-func RaiseUnexpectedCommandError(command eventsourcing.Command) ValidationError {
-	return ValidationError{ErrorOf(fmt.Sprintf("unexpected command: %#v", command))}
+func RaiseUnexpectedCommandError(command eventsourcing.Command) UnexpectedCommandError {
+	return UnexpectedCommandError{ErrorOf(fmt.Sprintf("unexpected command: %#v", command))}
 }
 
-func RaiseUnexpectedEventError(event eventsourcing.Event) ValidationError {
-	return ValidationError{ErrorOf(fmt.Sprintf("unexpected event: %#v", event))}
+func RaiseUnexpectedEventError(event eventsourcing.Event) UnexpectedEventError {
+	return UnexpectedEventError{ErrorOf(fmt.Sprintf("unexpected event: %#v", event))}
 }
