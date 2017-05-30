@@ -114,7 +114,7 @@ type UpdateProfile struct {
 	Name model.UserName
 }
 
-func ValidateName(name string) (model.UserName, error) {
+func ValidateName(name string) (model.UserName, domain.ValidationError) {
 	if name == "" {
 		return "", domain.RaiseValidationError("name cannot be empty")
 	}

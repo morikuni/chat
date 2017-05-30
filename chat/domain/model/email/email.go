@@ -5,16 +5,12 @@ import (
 
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
-	"github.com/pkg/errors"
 )
 
-func Validate(email string) (model.Email, error) {
-	ok, err := regexp.MatchString(`[a-zA-Z0-9\.\-\+]+@[a-zA-Z0-9\.]+`, email)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to compile regexp")
-	}
+func Validate(email string) (model.Email, domain.ValidationError) {
+	ok := regexp.MustCompile(`[a-zA-Z0-9\.\-\+]+@[a-zA-Z0-9\.]+`).MatchString(email)
 	if !ok {
-		return "", errors.WithStack(domain.RaiseValidationError("invalid format"))
+		return "", domain.RaiseValidationError("invalid format")
 	}
 	return model.Email(email), nil
 }
