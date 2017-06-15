@@ -22,11 +22,6 @@ type RoomCreated struct {
 	ID          model.RoomID
 	Name        model.RoomName
 	Description model.RoomDescription
-	CategoryID  model.CategoryID
+	OwnerID     model.UserID
 	CreatedAt   time.Time
-}
-
-type CategoryCreated struct {
-	ID   model.CategoryID
-	Name model.CategoryName
 }

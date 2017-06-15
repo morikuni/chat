@@ -10,8 +10,6 @@ func NewSerializer() eventsourcing.Serializer {
 		event.UserCreated{},
 		event.UserProfileUpdated{},
 
-		event.CategoryCreated{},
-
 		event.RoomCreated{},
 	)
 }

@@ -5,17 +5,17 @@ import (
 
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/model"
-	"github.com/morikuni/chat/chat/domain/model/category"
 	"github.com/morikuni/chat/chat/domain/model/room"
+	"github.com/morikuni/chat/chat/domain/model/user"
 	"github.com/pkg/errors"
 )
 
 func NewCreateRoom(
-	categoryRepo model.CategoryRepository,
+	userRepository model.UserRepository,
 	roomRepo model.RoomRepository,
 ) CreateRoom {
 	return createRoom{
-		categoryRepo,
+		userRepository,
 		roomRepo,
 	}
 }
@@ -25,21 +25,21 @@ type CreateRoom interface {
 }
 
 type createRoom struct {
-	categoryRepo model.CategoryRepository
-	roomRepo     model.RoomRepository
+	userRepository model.UserRepository
+	roomRepo       model.RoomRepository
 }
 
-func (jr createRoom) Create(ctx context.Context, categoryID, name, description string) (model.RoomID, error) {
-	c, err := jr.categoryRepo.Find(ctx, category.NewID(categoryID))
+func (jr createRoom) Create(ctx context.Context, userID, name, description string) (model.RoomID, error) {
+	u, err := jr.userRepository.Find(ctx, user.NewID(userID))
 	if err != nil {
 		switch errors.Cause(err).(type) {
 		case domain.NoSuchEntityError:
-			return "", errors.WithStack(ErrNoSuchCategory)
+			return "", errors.WithStack(ErrNoSuchUser)
 		default:
 			return "", errors.WithMessage(err, "failed to find category")
 		}
 	}
-	r := c.AddRoom(room.NewName(name), room.NewDescription(description))
+	r := u.CreateRoom(room.NewName(name), room.NewDescription(description))
 	err = jr.roomRepo.Save(ctx, r)
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to save room")

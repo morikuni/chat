@@ -4,6 +4,7 @@ import (
 	"github.com/morikuni/chat/chat/domain"
 	"github.com/morikuni/chat/chat/domain/event"
 	"github.com/morikuni/chat/chat/domain/model"
+	"github.com/morikuni/chat/chat/domain/model/room"
 	"github.com/morikuni/chat/chat/domain/model/roommember"
 	"github.com/morikuni/chat/common"
 	"github.com/morikuni/chat/eventsourcing"
@@ -46,15 +47,19 @@ func (u *User) Authenticate(email model.Email, password model.Password) error {
 	return u.state.authInfo.Authenticate(email, password)
 }
 
-func (u *User) JoinRoom(room model.Room) model.RoomMember {
-	return roommember.New(u.state.id, room.ID())
-}
-
 func (u *User) UpdateProfile(name model.UserName) {
 	err := u.Handle(UpdateProfile{name})
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (u *User) CreateRoom(name model.RoomName, description model.RoomDescription) model.Room {
+	return room.New(name, description, u)
+}
+
+func (u *User) JoinRoom(room model.Room) model.RoomMember {
+	return roommember.New(u.state.id, room.ID())
 }
 
 type State struct {

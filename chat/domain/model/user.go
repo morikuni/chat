@@ -12,6 +12,7 @@ type User interface {
 	Name() UserName
 	Authenticate(email Email, password Password) error
 	UpdateProfile(name UserName)
+	CreateRoom(name RoomName, description RoomDescription) Room
 	JoinRoom(room Room) RoomMember
 }
 

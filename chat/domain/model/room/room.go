@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func New(category model.Category, name model.RoomName, description model.RoomDescription) *Room {
+func New(name model.RoomName, description model.RoomDescription, owner model.User) *Room {
 	r := newRoom()
-	err := r.Handle(CreateRoom{name, description, category.ID()})
+	err := r.Handle(CreateRoom{name, description, owner.ID()})
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +51,7 @@ type State struct {
 	id          model.RoomID
 	name        model.RoomName
 	description model.RoomDescription
-	categoryID  model.CategoryID
+	ownerID     model.UserID
 	createdAt   time.Time
 }
 
@@ -67,7 +67,7 @@ func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Eve
 			model.RoomID(id),
 			c.Name,
 			c.Description,
-			c.CategoryID,
+			c.OwnerID,
 			time.Now(),
 		}, nil
 	default:
@@ -81,7 +81,7 @@ func (s *State) ReceiveEvent(e eventsourcing.Event) error {
 		s.id = e.ID
 		s.name = e.Name
 		s.description = e.Description
-		s.categoryID = e.CategoryID
+		s.ownerID = e.OwnerID
 		s.createdAt = e.CreatedAt
 	default:
 		return errors.WithStack(domain.RaiseUnexpectedEventError(e))
@@ -92,7 +92,7 @@ func (s *State) ReceiveEvent(e eventsourcing.Event) error {
 type CreateRoom struct {
 	Name        model.RoomName
 	Description model.RoomDescription
-	CategoryID  model.CategoryID
+	OwnerID     model.UserID
 }
 
 func NewID(id string) model.RoomID {
