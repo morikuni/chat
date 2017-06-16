@@ -33,9 +33,8 @@ type (
 )
 
 var (
-	ErrNoSuchUser     = NoSuchUserError{ErrorOf("no such user")}
-	ErrNoSuchRoom     = NoSuchRoomError{ErrorOf("no such room")}
-	ErrNoSuchCategory = NoSuchCategoryError{ErrorOf("no such category")}
+	ErrNoSuchUser = NoSuchUserError{ErrorOf("no such user")}
+	ErrNoSuchRoom = NoSuchRoomError{ErrorOf("no such room")}
 )
 
 func RaiseValidationError(name string, err domain.ValidationError) ValidationError {
