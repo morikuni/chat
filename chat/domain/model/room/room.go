@@ -13,7 +13,13 @@ import (
 
 func New(name model.RoomName, description model.RoomDescription, owner model.User) *Room {
 	r := newRoom()
-	err := r.Handle(CreateRoom{name, description, owner.ID()})
+	err := r.Apply(event.RoomCreated{
+		model.RoomID(common.NewUUID()),
+		name,
+		description,
+		owner.ID(),
+		time.Now(),
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -57,22 +63,6 @@ type State struct {
 
 func (s *State) ID() string {
 	return string(s.id)
-}
-
-func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Event, error) {
-	switch c := command.(type) {
-	case CreateRoom:
-		id := common.NewUUID()
-		return event.RoomCreated{
-			model.RoomID(id),
-			c.Name,
-			c.Description,
-			c.OwnerID,
-			time.Now(),
-		}, nil
-	default:
-		return nil, errors.WithStack(domain.RaiseUnexpectedCommandError(c))
-	}
 }
 
 func (s *State) ReceiveEvent(e eventsourcing.Event) error {

@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-type Command interface{}
-
 type Event interface{}
 
 type Version uint64

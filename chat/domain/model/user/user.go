@@ -13,7 +13,15 @@ import (
 
 func New(name model.UserName, email model.Email, password model.Password) model.User {
 	u := newUser()
-	err := u.Handle(CreateUser{name, email, password})
+
+	authInfo := newAuthInfo(email, password)
+	err := u.Apply(event.UserCreated{
+		model.UserID(common.NewUUID()),
+		name,
+		authInfo.Email,
+		authInfo.Password.Hash,
+		authInfo.Password.Salt,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +56,9 @@ func (u *User) Authenticate(email model.Email, password model.Password) error {
 }
 
 func (u *User) UpdateProfile(name model.UserName) {
-	err := u.Handle(UpdateProfile{name})
+	err := u.Apply(event.UserProfileUpdated{
+		name,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -70,27 +80,6 @@ type State struct {
 
 func (s *State) ID() string {
 	return string(s.id)
-}
-
-func (s *State) ReceiveCommand(command eventsourcing.Command) (eventsourcing.Event, error) {
-	switch c := command.(type) {
-	case CreateUser:
-		id := common.NewUUID()
-		authInfo := newAuthInfo(c.Email, c.Password)
-		return event.UserCreated{
-			model.UserID(id),
-			c.Name,
-			authInfo.Email,
-			authInfo.Password.Hash,
-			authInfo.Password.Salt,
-		}, nil
-	case UpdateProfile:
-		return event.UserProfileUpdated{
-			c.Name,
-		}, nil
-	default:
-		return nil, errors.WithStack(domain.RaiseUnexpectedCommandError(c))
-	}
 }
 
 func (s *State) ReceiveEvent(e eventsourcing.Event) error {

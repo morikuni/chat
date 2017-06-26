@@ -7,7 +7,7 @@ import (
 type Aggregate interface {
 	Changes() []MetaEvent
 	Version() Version
-	Handle(command Command) error
+	Apply(event Event) error
 	Replay(events []MetaEvent) error
 }
 
@@ -19,7 +19,6 @@ type aggregate struct {
 
 type Behavior interface {
 	ID() string
-	ReceiveCommand(command Command) (Event, error)
 	ReceiveEvent(event Event) error
 }
 
@@ -39,12 +38,22 @@ func (a *aggregate) Version() Version {
 	return a.version
 }
 
-func (a *aggregate) Handle(command Command) error {
-	event, err := a.behavior.ReceiveCommand(command)
+func (a *aggregate) Apply(event Event) error {
+	err := a.behavior.ReceiveEvent(event)
 	if err != nil {
 		return err
 	}
-	return a.Mutate(event)
+	a.version += 1
+	a.changes = append(a.changes, MetaEvent{
+		Metadata{
+			a.behavior.ID(),
+			time.Now(),
+			a.version,
+			TypeOf(event),
+		},
+		event,
+	})
+	return nil
 }
 
 func (a *aggregate) Replay(events []MetaEvent) error {
@@ -54,26 +63,6 @@ func (a *aggregate) Replay(events []MetaEvent) error {
 			return err
 		}
 		a.version = e.Metadata.Version
-	}
-	return nil
-}
-
-func (a *aggregate) Mutate(events ...Event) error {
-	for _, e := range events {
-		err := a.behavior.ReceiveEvent(e)
-		if err != nil {
-			return err
-		}
-		a.version += 1
-		a.changes = append(a.changes, MetaEvent{
-			Metadata{
-				a.behavior.ID(),
-				time.Now(),
-				a.version,
-				TypeOf(e),
-			},
-			e,
-		})
 	}
 	return nil
 }
