@@ -26,6 +26,7 @@ func ErrorOf(message string) EventSourcingError {
 type (
 	UnknowEventError          struct{ EventSourcingError }
 	EventVersionConflictError struct{ EventSourcingError }
+	InvalidEventVersionError  struct{ EventSourcingError }
 	NoEventsFoundError        struct{ EventSourcingError }
 )
 
@@ -39,4 +40,8 @@ func RaiseUnknownEventError(typ Type) UnknowEventError {
 
 func RaiseEventVersionConflictError(event MetaEvent) EventVersionConflictError {
 	return EventVersionConflictError{ErrorOf(fmt.Sprintf("event version conflict: meta=%#v event=%#v", event.Metadata, event.Event))}
+}
+
+func RaiseInvalidEventVersionError(expect Version, event MetaEvent) InvalidEventVersionError {
+	return InvalidEventVersionError{ErrorOf(fmt.Sprintf("event invalid event version: expected=%d meta=%#v event=%#v", expect, event.Metadata, event.Event))}
 }

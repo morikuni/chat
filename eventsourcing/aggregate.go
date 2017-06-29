@@ -58,6 +58,9 @@ func (a *aggregate) Apply(event Event) error {
 
 func (a *aggregate) Replay(events []MetaEvent) error {
 	for _, e := range events {
+		if e.Metadata.Version != a.version+1 {
+			RaiseInvalidEventVersionError(a.version+1, e)
+		}
 		err := a.behavior.ReceiveEvent(e.Event)
 		if err != nil {
 			return err
