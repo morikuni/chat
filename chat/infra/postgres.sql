@@ -4,3 +4,10 @@ CREATE TABLE IF NOT EXISTS aggregate (
     version INTEGER NOT NULL,
     data TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS event (
+    id SERIAL PRIMARY KEY,
+    type VARCHAR(64) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);

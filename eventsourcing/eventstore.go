@@ -10,6 +10,7 @@ import (
 type EventStore interface {
 	Save(ctx context.Context, events []MetaEvent) error
 	Find(ctx context.Context, aggregateID string) ([]MetaEvent, error)
+	AsSource() EventSource
 }
 
 func NewMemoryEventStore(serializer Serializer) EventStore {
