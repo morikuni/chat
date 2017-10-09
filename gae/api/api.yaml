@@ -1,0 +1,9 @@
+runtime: go
+api_version: go1.8
+threadsafe: true
+
+service: api
+
+handlers:
+- url: /.*
+  script: _go_app
