@@ -1,9 +1,9 @@
 package di
 
 import (
-	"github.com/morikuni/chat/src/domain/model"
+	"github.com/morikuni/chat/src/domain/repository"
 )
 
-func InjectChatRepository() model.ChatRepository {
-	return model.NewChatRepository()
+func InjectChatRepository() repository.Chat {
+	return repository.NewChatRepository()
 }

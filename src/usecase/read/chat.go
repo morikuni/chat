@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/morikuni/chat/src/domain/model"
+	"github.com/morikuni/chat/src/domain/repository"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/datastore"
 )
@@ -27,7 +27,7 @@ type chatReader struct{}
 
 func (cr chatReader) Chats(ctx context.Context) ([]Chat, error) {
 	var chats []Chat
-	_, err := datastore.NewQuery(model.ChatKind).
+	_, err := datastore.NewQuery(repository.ChatKind).
 		Order("-ID").
 		Limit(3).
 		GetAll(ctx, &chats)
