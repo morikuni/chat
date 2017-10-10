@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/morikuni/chat/src/infra"
@@ -55,11 +54,11 @@ func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) 
 	switch t := errors.Cause(err).(type) {
 	case usecase.ValidationError:
 		w.WriteHeader(http.StatusBadRequest)
-		a.JSON(ctx, w, Error{fmt.Sprintf("%s: %s", t.Parameter, t.Error())})
+		a.JSON(ctx, w, ValidationError(t))
 	default:
 		a.log.Errorf(ctx, "api: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		a.JSON(ctx, w, Error{http.StatusText(http.StatusInternalServerError)})
+		a.JSON(ctx, w, InternalServerError)
 	}
 }
 
