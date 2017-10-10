@@ -1,4 +1,4 @@
-package application
+package usecase
 
 import (
 	"context"
@@ -6,21 +6,21 @@ import (
 	"github.com/morikuni/chat/src/domain/model"
 )
 
-func NewPostingService(chatRepository model.ChatRepository) PostingService {
-	return postingService{
+func NewPosting(chatRepository model.ChatRepository) Posting {
+	return posting{
 		chatRepository,
 	}
 }
 
-type PostingService interface {
+type Posting interface {
 	PostChat(ctx context.Context, message string) error
 }
 
-type postingService struct {
+type posting struct {
 	chatRepository model.ChatRepository
 }
 
-func (ps postingService) PostChat(ctx context.Context, message string) error {
+func (ps posting) PostChat(ctx context.Context, message string) error {
 	cm, verr := model.ValidateChatMessage(message)
 	if verr != nil {
 		return TranslateValidationError(verr, "message")

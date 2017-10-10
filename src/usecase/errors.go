@@ -1,4 +1,4 @@
-package application
+package usecase
 
 import (
 	"fmt"
@@ -6,28 +6,28 @@ import (
 	"github.com/morikuni/chat/src/domain"
 )
 
-type ApplicationError interface {
+type UsecaseError interface {
 	error
-	applicationError()
+	usecaseError()
 }
 
-type applicationError struct {
+type usecaseError struct {
 	message string
 }
 
-func (e applicationError) Error() string {
+func (e usecaseError) Error() string {
 	return e.message
 }
 
-func (e applicationError) applicationError() {}
+func (e usecaseError) usecaseError() {}
 
-func ErrorOf(message string) ApplicationError {
-	return applicationError{message}
+func ErrorOf(message string) UsecaseError {
+	return usecaseError{message}
 }
 
 type (
 	ValidationError struct {
-		ApplicationError
+		UsecaseError
 		Parameter string
 	}
 )

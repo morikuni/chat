@@ -6,7 +6,7 @@ import (
 
 func InjectAPI() api.API {
 	return api.NewAPI(
-		InjectPostingService(),
+		InjectPosting(),
 		InjectChatReader(),
 		InjectLogger(),
 	)
