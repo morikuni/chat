@@ -1,32 +1,26 @@
-package read
+package reader
 
 import (
 	"context"
-	"time"
 
 	"github.com/morikuni/chat/src/domain/repository"
+	"github.com/morikuni/chat/src/usecase/reader/dto"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/datastore"
 )
 
-type Chat struct {
-	ID       int64
-	Message  string
-	PostedAt time.Time
+func NewChat() Chat {
+	return chat{}
 }
 
-func NewChatReader() ChatReader {
-	return chatReader{}
+type Chat interface {
+	Chats(ctx context.Context) ([]dto.Chat, error)
 }
 
-type ChatReader interface {
-	Chats(ctx context.Context) ([]Chat, error)
-}
+type chat struct{}
 
-type chatReader struct{}
-
-func (cr chatReader) Chats(ctx context.Context) ([]Chat, error) {
-	var chats []Chat
+func (r chat) Chats(ctx context.Context) ([]dto.Chat, error) {
+	var chats []dto.Chat
 	_, err := datastore.NewQuery(repository.ChatKind).
 		Order("-ID").
 		Limit(3).

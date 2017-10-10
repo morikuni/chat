@@ -2,7 +2,7 @@ package di
 
 import (
 	"github.com/morikuni/chat/src/usecase"
-	"github.com/morikuni/chat/src/usecase/read"
+	"github.com/morikuni/chat/src/usecase/reader"
 )
 
 func InjectPosting() usecase.Posting {
@@ -11,6 +11,6 @@ func InjectPosting() usecase.Posting {
 	)
 }
 
-func InjectChatReader() read.ChatReader {
-	return read.NewChatReader()
+func InjectChatReader() reader.Chat {
+	return reader.NewChat()
 }

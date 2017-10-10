@@ -12,7 +12,7 @@ const (
 	ChatKind = "Chat"
 )
 
-func NewChatRepository() Chat {
+func NewChat() Chat {
 	return chat{}
 }
 

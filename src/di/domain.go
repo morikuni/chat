@@ -5,5 +5,5 @@ import (
 )
 
 func InjectChatRepository() repository.Chat {
-	return repository.NewChatRepository()
+	return repository.NewChat()
 }

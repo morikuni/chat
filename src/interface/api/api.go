@@ -7,14 +7,14 @@ import (
 
 	"github.com/morikuni/chat/src/infra"
 	"github.com/morikuni/chat/src/usecase"
-	"github.com/morikuni/chat/src/usecase/read"
+	"github.com/morikuni/chat/src/usecase/reader"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine"
 )
 
 func NewAPI(
 	posting usecase.Posting,
-	chatReader read.ChatReader,
+	chatReader reader.Chat,
 	logger infra.Logger,
 ) API {
 	return API{
@@ -26,7 +26,7 @@ func NewAPI(
 
 type API struct {
 	posting    usecase.Posting
-	chatReader read.ChatReader
+	chatReader reader.Chat
 	log        infra.Logger
 }
 
