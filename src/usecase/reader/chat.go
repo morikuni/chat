@@ -22,7 +22,7 @@ type chat struct{}
 func (r chat) Chats(ctx context.Context) ([]dto.Chat, error) {
 	var chats []dto.Chat
 	_, err := datastore.NewQuery(repository.ChatKind).
-		Order("-ID").
+		Order("-PostedAt").
 		Limit(3).
 		GetAll(ctx, &chats)
 
