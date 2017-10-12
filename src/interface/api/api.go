@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/morikuni/chat/src/infra"
+	"github.com/morikuni/chat/src/reader"
 	"github.com/morikuni/chat/src/usecase"
-	"github.com/morikuni/chat/src/usecase/reader"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine"
 )
