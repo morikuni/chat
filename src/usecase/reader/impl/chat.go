@@ -1,4 +1,4 @@
-package chat
+package impl
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
-func New() reader.Chat {
+func NewChat() reader.Chat {
 	return impl{}
 }
 

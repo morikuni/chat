@@ -1,4 +1,4 @@
-package chat
+package impl
 
 import (
 	"context"
@@ -13,7 +13,7 @@ const (
 	Kind = "Chat"
 )
 
-func New() repository.Chat {
+func NewChat() repository.Chat {
 	return impl{}
 }
 

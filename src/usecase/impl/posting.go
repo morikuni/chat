@@ -1,4 +1,4 @@
-package posting
+package impl
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/morikuni/chat/src/usecase"
 )
 
-func New(chatRepository repository.Chat) usecase.Posting {
+func NewPosting(chatRepository repository.Chat) usecase.Posting {
 	return impl{
 		chatRepository,
 	}
