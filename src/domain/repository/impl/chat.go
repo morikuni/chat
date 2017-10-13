@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Kind = "Chat"
+	ChatKind = "Chat"
 )
 
 func NewChat() repository.Chat {
@@ -20,7 +20,7 @@ func NewChat() repository.Chat {
 type impl struct{}
 
 func (repo impl) GenerateID(ctx context.Context) (model.ChatID, error) {
-	l, _, err := datastore.AllocateIDs(ctx, Kind, nil, 1)
+	l, _, err := datastore.AllocateIDs(ctx, ChatKind, nil, 1)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to generate chat ID")
 	}
@@ -28,7 +28,7 @@ func (repo impl) GenerateID(ctx context.Context) (model.ChatID, error) {
 }
 
 func (repo impl) Save(ctx context.Context, chat *model.Chat) error {
-	key := datastore.NewKey(ctx, Kind, "", int64(chat.ID), nil)
+	key := datastore.NewKey(ctx, ChatKind, "", int64(chat.ID), nil)
 	_, err := datastore.Put(ctx, key, chat)
 	if err != nil {
 		return errors.Wrap(err, "failed to save chat")
