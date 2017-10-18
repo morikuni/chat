@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"fmt"
-
 	"github.com/morikuni/chat/src/domain"
 )
 
@@ -33,17 +31,6 @@ type (
 )
 
 func TranslateValidationError(err domain.ValidationError, name string) ValidationError {
-	return ValidationError{
-		ErrorOf(err.Error()),
-		name,
-	}
-}
-
-func TranslateValidationErrorByMap(err domain.ValidationError, dict map[string]string) ValidationError {
-	name, ok := dict[err.Parameter()]
-	if !ok {
-		panic(fmt.Sprintf("unkown parameter name %s", name))
-	}
 	return ValidationError{
 		ErrorOf(err.Error()),
 		name,

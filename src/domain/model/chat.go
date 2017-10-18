@@ -31,10 +31,10 @@ type ChatMessage string
 
 func ValidateChatMessage(message string) (ChatMessage, domain.ValidationError) {
 	if message == "" {
-		return "", domain.RaiseValidationError("message", "cannot be empty")
+		return "", domain.RaiseValidationError("cannot be empty")
 	}
 	if len(message) > MaxMessageLength {
-		return "", domain.RaiseValidationError("message", fmt.Sprintf("length must be shorter than %d", MaxMessageLength))
+		return "", domain.RaiseValidationError(fmt.Sprintf("length must be shorter than %d", MaxMessageLength))
 	}
 	return ChatMessage(message), nil
 }

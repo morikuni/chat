@@ -22,19 +22,16 @@ func ErrorOf(message string) DomainError {
 type (
 	ValidationError interface {
 		DomainError
-		Parameter() string
+		validationError()
 	}
 )
 
 type validationError struct {
 	DomainError
-	Param string
 }
 
-func (ve validationError) Parameter() string {
-	return ve.Param
-}
+func (ve validationError) validationError() {}
 
-func RaiseValidationError(param, message string) ValidationError {
-	return validationError{ErrorOf(message), param}
+func RaiseValidationError(message string) ValidationError {
+	return validationError{ErrorOf(message)}
 }
