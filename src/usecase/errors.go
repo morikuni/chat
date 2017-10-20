@@ -1,26 +1,25 @@
 package usecase
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/morikuni/chat/src/domain"
+	"github.com/morikuni/chat/src/infra"
 )
 
 type UsecaseError interface {
-	error
+	infra.StackTraceError
 	usecaseError()
 }
 
 type usecaseError struct {
-	message string
-}
-
-func (e usecaseError) Error() string {
-	return e.message
+	infra.StackTraceError
 }
 
 func (e usecaseError) usecaseError() {}
 
 func ErrorOf(message string) UsecaseError {
-	return usecaseError{message}
+	return usecaseError{errors.New(message).(infra.StackTraceError)}
 }
 
 type (

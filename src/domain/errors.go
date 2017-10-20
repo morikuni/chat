@@ -1,22 +1,23 @@
 package domain
 
+import (
+	"github.com/morikuni/chat/src/infra"
+	"github.com/pkg/errors"
+)
+
 type DomainError interface {
-	error
+	infra.StackTraceError
 	domainError()
 }
 
 type domainError struct {
-	message string
-}
-
-func (e domainError) Error() string {
-	return e.message
+	infra.StackTraceError
 }
 
 func (e domainError) domainError() {}
 
 func ErrorOf(message string) DomainError {
-	return domainError{message}
+	return domainError{errors.New(message).(infra.StackTraceError)}
 }
 
 type (

@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/morikuni/chat/src/infra"
@@ -56,7 +58,14 @@ func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) 
 		w.WriteHeader(http.StatusBadRequest)
 		a.JSON(ctx, w, ValidationError(t))
 	default:
-		a.log.Errorf(ctx, "api: %v", err)
+		buf := &bytes.Buffer{}
+		fmt.Fprintf(buf, "api: %v\n", err)
+		if s, ok := err.(infra.StackTraceError); ok {
+			for _, f := range s.StackTrace() {
+				fmt.Fprintf(buf, "%+s:%d\n", f, f)
+			}
+		}
+		a.log.Errorf(ctx, "%s", buf.String())
 		w.WriteHeader(http.StatusInternalServerError)
 		a.JSON(ctx, w, InternalServerError)
 	}

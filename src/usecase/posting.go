@@ -5,7 +5,6 @@ import (
 
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/repository"
-	"github.com/pkg/errors"
 )
 
 type Posting interface {
@@ -25,11 +24,11 @@ type posting struct {
 func (p posting) PostChat(ctx context.Context, message string) error {
 	cm, verr := model.ValidateChatMessage(message)
 	if verr != nil {
-		return TranslateValidationError(verr, "message")
+		return verr
 	}
 	id, err := p.chatRepository.GenerateID(ctx)
 	if err != nil {
-		return errors.WithMessage(err, "failed to post chat")
+		return err
 	}
 	chat := model.NewChat(id, cm)
 	return p.chatRepository.Save(ctx, chat)
