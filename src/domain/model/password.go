@@ -22,7 +22,7 @@ func ValidatePassword(password string) (Password, domain.ValidationError) {
 func (p Password) Hash() (PasswordHash, error) {
 	h, err := bcrypt.GenerateFromPassword([]byte(p), Cost)
 	if err != nil {
-		return PasswordHash{}, errors.Wrap(err, "failed to hash password")
+		return PasswordHash{}, errors.Wrap(err, "failed to grenerate hash")
 	}
 	return PasswordHash(h), nil
 }
