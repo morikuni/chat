@@ -8,3 +8,7 @@ import (
 func InjectLogger() infra.Logger {
 	return appengine.NewLogger()
 }
+
+func InjectClock() infra.Clock {
+	return infra.NewClock()
+}

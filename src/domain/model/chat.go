@@ -17,11 +17,11 @@ type Chat struct {
 	PostedAt time.Time
 }
 
-func NewChat(id ChatID, message ChatMessage) *Chat {
+func NewChat(id ChatID, message ChatMessage, postedAt time.Time) *Chat {
 	return &Chat{
 		id,
 		message,
-		time.Now(),
+		postedAt,
 	}
 }
 

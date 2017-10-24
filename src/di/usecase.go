@@ -7,5 +7,6 @@ import (
 func InjectPosting() usecase.Posting {
 	return usecase.NewPosting(
 		InjectChatRepository(),
+		InjectClock(),
 	)
 }
