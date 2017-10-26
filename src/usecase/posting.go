@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/morikuni/chat/src/domain/model"
+	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
 	"github.com/morikuni/chat/src/infra"
 )
@@ -36,6 +37,6 @@ func (p posting) PostChat(ctx context.Context, message string) error {
 	if err != nil {
 		return err
 	}
-	chat := model.NewChat(id, cm, p.clock.Now())
+	chat := aggregate.NewChat(id, cm, p.clock.Now())
 	return p.chatRepository.Save(ctx, chat)
 }

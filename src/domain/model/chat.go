@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/morikuni/chat/src/domain"
 )
@@ -10,20 +9,6 @@ import (
 const (
 	MaxMessageLength = 20
 )
-
-type Chat struct {
-	ID       ChatID
-	Message  ChatMessage
-	PostedAt time.Time
-}
-
-func NewChat(id ChatID, message ChatMessage, postedAt time.Time) *Chat {
-	return &Chat{
-		id,
-		message,
-		postedAt,
-	}
-}
 
 type ChatID int64
 

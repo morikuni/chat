@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/morikuni/chat/src/domain/model"
+	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
 	"github.com/morikuni/chat/src/reader"
 	"github.com/morikuni/chat/src/reader/dto"
@@ -33,7 +34,7 @@ func (chat) GenerateID(ctx context.Context) (model.ChatID, error) {
 	return model.ChatID(l), nil
 }
 
-func (chat) Save(ctx context.Context, chat *model.Chat) error {
+func (chat) Save(ctx context.Context, chat *aggregate.Chat) error {
 	key := datastore.NewKey(ctx, ChatKind, "", int64(chat.ID), nil)
 	_, err := datastore.Put(ctx, key, chat)
 	if err != nil {
