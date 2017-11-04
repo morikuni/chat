@@ -3,7 +3,6 @@ package model
 import (
 	"testing"
 
-	"github.com/morikuni/chat/src/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,7 +10,7 @@ func TestPassword(t *testing.T) {
 	assert := assert.New(t)
 
 	password, verr := ValidatePassword("")
-	assert.Equal(domain.RaiseValidationError("cannot be empty"), verr)
+	assert.EqualError(verr, "cannot be empty")
 	assert.Zero(password)
 
 	password, verr = ValidatePassword("password")

@@ -3,7 +3,6 @@ package model
 import (
 	"testing"
 
-	"github.com/morikuni/chat/src/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,11 +10,11 @@ func TestEmail(t *testing.T) {
 	assert := assert.New(t)
 
 	email, verr := ValidateEmail("")
-	assert.Equal(domain.RaiseValidationError("invalid format"), verr)
+	assert.EqualError(verr, "invalid format")
 	assert.Zero(email)
 
 	email, verr = ValidateEmail("@email@mail.com")
-	assert.Equal(domain.RaiseValidationError("invalid format"), verr)
+	assert.EqualError(verr, "invalid format")
 	assert.Zero(email)
 
 	email, verr = ValidateEmail("email@mail.com")
