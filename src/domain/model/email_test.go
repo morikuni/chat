@@ -11,11 +11,11 @@ func TestEmail(t *testing.T) {
 	assert := assert.New(t)
 
 	email, verr := ValidateEmail("")
-	assert.Equal(domain.RaiseValidationError("email", "invalid format"), verr)
+	assert.Equal(domain.RaiseValidationError("invalid format"), verr)
 	assert.Zero(email)
 
 	email, verr = ValidateEmail("@email@mail.com")
-	assert.Equal(domain.RaiseValidationError("email", "invalid format"), verr)
+	assert.Equal(domain.RaiseValidationError("invalid format"), verr)
 	assert.Zero(email)
 
 	email, verr = ValidateEmail("email@mail.com")

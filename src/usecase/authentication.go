@@ -49,7 +49,7 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 	if err := a.accountRepository.Save(ctx, account); err != nil {
 		return 0, err
 	}
-	if err := a.eventPublisher.Publish(c, e); err != nil {
+	if err := a.eventPublisher.Publish(ctx, e); err != nil {
 		return 0, err
 	}
 	return account.UserID, nil

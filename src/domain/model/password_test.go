@@ -11,7 +11,7 @@ func TestPassword(t *testing.T) {
 	assert := assert.New(t)
 
 	password, verr := ValidatePassword("")
-	assert.Equal(domain.RaiseValidationError("password", "cannot be empty"), verr)
+	assert.Equal(domain.RaiseValidationError("cannot be empty"), verr)
 	assert.Zero(password)
 
 	password, verr = ValidatePassword("password")
