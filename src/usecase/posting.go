@@ -31,7 +31,7 @@ type posting struct {
 func (p posting) PostChat(ctx context.Context, message string) error {
 	cm, verr := model.ValidateChatMessage(message)
 	if verr != nil {
-		return verr
+		return TranslateValidationError(verr, "message")
 	}
 	id, err := p.chatRepository.GenerateID(ctx)
 	if err != nil {
