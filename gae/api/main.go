@@ -13,6 +13,7 @@ func init() {
 	api := di.InjectAPI()
 	router.HandleFunc("/chats", api.GetChats).Methods("GET")
 	router.HandleFunc("/chats", api.PostChats).Methods("POST")
+	router.HandleFunc("/accounts", api.PostAccounts).Methods("POST")
 
 	th := di.InjectTaskHandler()
 	router.Handle("/internal/event", th)

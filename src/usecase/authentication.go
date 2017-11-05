@@ -10,7 +10,7 @@ import (
 )
 
 type Authentication interface {
-	CreateAccount(ctx context.Context, email, password string) (model.UserID, error)
+	CreateAccount(ctx context.Context, email, password string) error
 }
 
 func NewAuthentication(
@@ -28,29 +28,29 @@ type authentication struct {
 	eventPublisher    event.Publisher
 }
 
-func (a authentication) CreateAccount(ctx context.Context, email, password string) (model.UserID, error) {
+func (a authentication) CreateAccount(ctx context.Context, email, password string) error {
 	em, verr := model.ValidateEmail(email)
 	if verr != nil {
-		return 0, TranslateValidationError(verr, "email")
+		return TranslateValidationError(verr, "email")
 	}
 	pw, verr := model.ValidatePassword(password)
 	if verr != nil {
-		return 0, TranslateValidationError(verr, "password")
+		return TranslateValidationError(verr, "password")
 	}
 	hash, err := pw.Hash()
 	if err != nil {
-		return 0, err
+		return err
 	}
 	id, err := a.accountRepository.GenerateID(ctx)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	account, e := aggregate.NewAccount(id, em, hash)
 	if err := a.accountRepository.Save(ctx, account); err != nil {
-		return 0, err
+		return err
 	}
 	if err := a.eventPublisher.Publish(ctx, e); err != nil {
-		return 0, err
+		return err
 	}
-	return account.UserID, nil
+	return nil
 }
