@@ -17,3 +17,9 @@ func InjectAuthentication() usecase.Authentication {
 		InjectEventPublisher(),
 	)
 }
+
+func InjectEventHandler() usecase.EventHandler {
+	return usecase.NewEventHandler(
+		InjectLogger(),
+	)
+}

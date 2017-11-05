@@ -16,3 +16,7 @@ type logger struct{}
 func (l logger) Errorf(ctx context.Context, format string, args ...interface{}) {
 	log.Errorf(ctx, format, args...)
 }
+
+func (l logger) Debugf(ctx context.Context, format string, args ...interface{}) {
+	log.Debugf(ctx, format, args...)
+}

@@ -8,6 +8,7 @@ import (
 
 type Logger interface {
 	Errorf(ctx context.Context, format string, args ...interface{})
+	Debugf(ctx context.Context, format string, args ...interface{})
 }
 
 type StackTraceError interface {

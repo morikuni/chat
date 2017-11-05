@@ -1,10 +1,12 @@
 package usecase
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 
 	"github.com/morikuni/chat/src/domain"
+	"github.com/morikuni/chat/src/domain/event"
 	"github.com/morikuni/chat/src/infra"
+	"github.com/pkg/errors"
 )
 
 type UsecaseError interface {
@@ -27,11 +29,22 @@ type (
 		UsecaseError
 		Parameter string
 	}
+	UnknownEventError struct {
+		UsecaseError
+		Event event.Event
+	}
 )
 
 func TranslateValidationError(err domain.ValidationError, name string) ValidationError {
 	return ValidationError{
 		ErrorOf(err.Error()),
 		name,
+	}
+}
+
+func RaiseUnknownEventError(e event.Event) UnknownEventError {
+	return UnknownEventError{
+		ErrorOf(fmt.Sprintf("unknown event: %#v", e)),
+		e,
 	}
 }

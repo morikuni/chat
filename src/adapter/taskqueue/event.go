@@ -1,12 +1,17 @@
 package taskqueue
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/morikuni/chat/src/domain/event"
+	"github.com/morikuni/chat/src/infra"
+	"github.com/morikuni/chat/src/usecase"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/taskqueue"
 )
@@ -64,4 +69,63 @@ func serialize(e event.Event) (serializedEvent, error) {
 		name,
 		payload,
 	}, nil
+}
+
+func deserialize(se serializedEvent) (event.Event, error) {
+	var e event.Event
+	switch se.Name {
+	case "account_created":
+		e = event.AccountCreated{}
+	default:
+		return nil, errors.New("unknown event")
+	}
+	if err := json.Unmarshal(se.Payload, &e); err != nil {
+		return nil, errors.Wrap(err, "failed to decode json")
+	}
+	return e, nil
+}
+
+func NewTaskHandler(
+	log infra.Logger,
+	eventHandler usecase.EventHandler,
+) http.Handler {
+	return taskHandler{
+		log,
+		eventHandler,
+	}
+}
+
+type taskHandler struct {
+	log          infra.Logger
+	eventHandler usecase.EventHandler
+}
+
+func (th taskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	name := r.FormValue("name")
+	payload, err := base64.StdEncoding.DecodeString(r.FormValue("payload"))
+	if err != nil {
+		th.log.Errorf(ctx, "failed to decode payload: %v", err)
+	}
+	se := serializedEvent{
+		name,
+		payload,
+	}
+
+	e, err := deserialize(se)
+	if err != nil {
+		th.log.Errorf(ctx, "failed to deserialize payload: %v", err)
+	}
+
+	if err := th.eventHandler.Handle(ctx, e); err != nil {
+		buf := &bytes.Buffer{}
+		fmt.Fprintf(buf, "taskqueue: %v\n", err)
+		if s, ok := err.(infra.StackTraceError); ok {
+			for _, f := range s.StackTrace() {
+				fmt.Fprintf(buf, "%+s:%d\n", f, f)
+			}
+		}
+		th.log.Errorf(ctx, "%s", buf.String())
+	}
 }
