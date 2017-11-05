@@ -10,7 +10,6 @@ import (
 	"github.com/morikuni/chat/src/infra"
 	"github.com/morikuni/chat/src/reader"
 	"github.com/morikuni/chat/src/usecase"
-	"github.com/pkg/errors"
 	"google.golang.org/appengine"
 )
 
@@ -66,7 +65,7 @@ func (a API) PostAccounts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) {
-	switch t := errors.Cause(err).(type) {
+	switch t := err.(type) {
 	case usecase.ValidationError:
 		a.JSON(ctx, w, http.StatusBadRequest, ValidationError(t))
 	default:
