@@ -7,6 +7,10 @@ import (
 	"github.com/morikuni/chat/src/domain/repository"
 )
 
+func InjectAccountRepository() repository.Account {
+	return datastore.NewAccountRepository()
+}
+
 func InjectChatRepository() repository.Chat {
 	return datastore.NewChatRepository()
 }

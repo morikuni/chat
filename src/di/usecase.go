@@ -10,3 +10,10 @@ func InjectPosting() usecase.Posting {
 		InjectClock(),
 	)
 }
+
+func InjectAuthentication() usecase.Authentication {
+	return usecase.NewAuthentication(
+		InjectAccountRepository(),
+		InjectEventPublisher(),
+	)
+}
