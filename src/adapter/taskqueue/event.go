@@ -13,6 +13,7 @@ import (
 	"github.com/morikuni/chat/src/infra"
 	"github.com/morikuni/chat/src/usecase"
 	"github.com/pkg/errors"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/taskqueue"
 )
 
@@ -72,17 +73,16 @@ func serialize(e event.Event) (serializedEvent, error) {
 }
 
 func deserialize(se serializedEvent) (event.Event, error) {
-	var e event.Event
 	switch se.Name {
 	case "account_created":
-		e = event.AccountCreated{}
+		var e event.AccountCreated
+		if err := json.Unmarshal(se.Payload, &e); err != nil {
+			return nil, errors.Wrap(err, "failed to decode json")
+		}
+		return e, nil
 	default:
 		return nil, errors.New("unknown event")
 	}
-	if err := json.Unmarshal(se.Payload, &e); err != nil {
-		return nil, errors.Wrap(err, "failed to decode json")
-	}
-	return e, nil
 }
 
 func NewTaskHandler(
@@ -101,7 +101,7 @@ type taskHandler struct {
 }
 
 func (th taskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	ctx := appengine.NewContext(r)
 
 	name := r.FormValue("name")
 	payload, err := base64.StdEncoding.DecodeString(r.FormValue("payload"))

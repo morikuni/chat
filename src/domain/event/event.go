@@ -9,8 +9,8 @@ type Event interface {
 }
 
 type AccountCreated struct {
-	UserID model.UserID `json:"user_id"`
-	Email  model.Email  `json:"email"`
+	UserID model.UserID
+	Email  model.Email
 }
 
 func (AccountCreated) domainEvent() {}
