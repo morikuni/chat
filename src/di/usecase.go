@@ -15,6 +15,7 @@ func InjectAuthentication() usecase.Authentication {
 	return usecase.NewAuthentication(
 		InjectAccountRepository(),
 		InjectEventPublisher(),
+		InjectTransactionManager(),
 	)
 }
 

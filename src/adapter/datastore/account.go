@@ -6,6 +6,7 @@ import (
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
+	"github.com/morikuni/chat/src/infra"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/datastore"
 )
@@ -14,11 +15,15 @@ const (
 	AccountKind = "Account"
 )
 
-func NewAccountRepository() repository.Account {
-	return account{}
+func NewAccountRepository(transaction infra.TransactionManager) repository.Account {
+	return account{
+		transaction,
+	}
 }
 
-type account struct{}
+type account struct {
+	transaction infra.TransactionManager
+}
 
 func (account) GenerateID(ctx context.Context) (model.UserID, error) {
 	l, _, err := datastore.AllocateIDs(ctx, AccountKind, nil, 1)
@@ -28,13 +33,15 @@ func (account) GenerateID(ctx context.Context) (model.UserID, error) {
 	return model.UserID(l), nil
 }
 
-func (account) Save(ctx context.Context, account *aggregate.Account) error {
+func (a account) Save(ctx context.Context, account *aggregate.Account) error {
 	key := datastore.NewKey(ctx, AccountKind, "", int64(account.UserID), nil)
-	_, err := datastore.Put(ctx, key, account)
-	if err != nil {
-		return errors.Wrap(err, "failed to save account")
-	}
-	return nil
+	return a.transaction.Exec(ctx, func(ctx context.Context) error {
+		_, err := datastore.Put(ctx, key, account)
+		if err != nil {
+			return errors.Wrap(err, "failed to save account")
+		}
+		return nil
+	})
 }
 
 func (account) Find(ctx context.Context, id model.UserID) (*aggregate.Account, error) {

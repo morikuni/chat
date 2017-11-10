@@ -7,6 +7,7 @@ import (
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
+	"github.com/morikuni/chat/src/infra"
 )
 
 type Authentication interface {
@@ -16,16 +17,19 @@ type Authentication interface {
 func NewAuthentication(
 	accountRepository repository.Account,
 	eventPublisher event.Publisher,
+	transaction infra.TransactionManager,
 ) Authentication {
 	return authentication{
 		accountRepository,
 		eventPublisher,
+		transaction,
 	}
 }
 
 type authentication struct {
 	accountRepository repository.Account
 	eventPublisher    event.Publisher
+	transaction       infra.TransactionManager
 }
 
 func (a authentication) CreateAccount(ctx context.Context, email, password string) error {
@@ -46,11 +50,14 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 		return err
 	}
 	account, e := aggregate.NewAccount(id, em, hash)
-	if err := a.accountRepository.Save(ctx, account); err != nil {
-		return err
-	}
-	if err := a.eventPublisher.Publish(ctx, e); err != nil {
-		return err
-	}
-	return nil
+
+	return a.transaction.Exec(ctx, func(ctx context.Context) error {
+		if err := a.accountRepository.Save(ctx, account); err != nil {
+			return err
+		}
+		if err := a.eventPublisher.Publish(ctx, e); err != nil {
+			return err
+		}
+		return nil
+	})
 }

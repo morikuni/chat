@@ -8,7 +8,9 @@ import (
 )
 
 func InjectAccountRepository() repository.Account {
-	return datastore.NewAccountRepository()
+	return datastore.NewAccountRepository(
+		InjectTransactionManager(),
+	)
 }
 
 func InjectChatRepository() repository.Chat {
