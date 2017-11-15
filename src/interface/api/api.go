@@ -69,7 +69,6 @@ func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) 
 	case usecase.ValidationError:
 		a.JSON(ctx, w, http.StatusBadRequest, ValidationError(t))
 	default:
-		a.logger.Debugf(ctx, "hoge %#v", t)
 		buf := &bytes.Buffer{}
 		fmt.Fprintf(buf, "api: %v\n", err)
 		if s, ok := err.(infra.StackTraceError); ok {
