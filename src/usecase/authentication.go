@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/domain"
 	"github.com/morikuni/chat/src/domain/event"
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
@@ -51,7 +52,7 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 	}
 	account, e := aggregate.NewAccount(id, em, hash)
 
-	return a.transaction.Exec(ctx, func(ctx context.Context) error {
+	err = a.transaction.Exec(ctx, func(ctx context.Context) error {
 		if err := a.accountRepository.Save(ctx, account); err != nil {
 			return err
 		}
@@ -60,4 +61,10 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 		}
 		return nil
 	})
+	if err != nil {
+		if _, ok := err.(domain.DuplicateEmailError); ok {
+			return RaiseValidationError("email", "already in use")
+		}
+	}
+	return nil
 }

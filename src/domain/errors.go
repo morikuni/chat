@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"fmt"
+
 	"github.com/morikuni/chat/src/infra"
 	"github.com/pkg/errors"
 )
@@ -25,6 +27,9 @@ type (
 		DomainError
 		validationError()
 	}
+	DuplicateEmailError struct {
+		DomainError
+	}
 )
 
 type validationError struct {
@@ -35,4 +40,8 @@ func (ve validationError) validationError() {}
 
 func RaiseValidationError(message string) ValidationError {
 	return validationError{ErrorOf(message)}
+}
+
+func RaiseDuplicateEmailError(email string) error {
+	return DuplicateEmailError{ErrorOf(fmt.Sprintf("email duplicated: %s", email))}
 }

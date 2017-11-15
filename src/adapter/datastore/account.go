@@ -3,6 +3,7 @@ package datastore
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/domain"
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
@@ -13,6 +14,7 @@ import (
 
 const (
 	AccountKind = "Account"
+	EmailKind   = "Email"
 )
 
 func NewAccountRepository(transaction infra.TransactionManager) repository.Account {
@@ -25,6 +27,10 @@ type account struct {
 	transaction infra.TransactionManager
 }
 
+type email struct {
+	userID model.UserID
+}
+
 func (account) GenerateID(ctx context.Context) (model.UserID, error) {
 	l, _, err := datastore.AllocateIDs(ctx, AccountKind, nil, 1)
 	if err != nil {
@@ -34,10 +40,31 @@ func (account) GenerateID(ctx context.Context) (model.UserID, error) {
 }
 
 func (a account) Save(ctx context.Context, account *aggregate.Account) error {
-	key := datastore.NewKey(ctx, AccountKind, "", int64(account.UserID), nil)
+	accountKey := datastore.NewKey(ctx, AccountKind, "", int64(account.UserID), nil)
+	emailKey := datastore.NewKey(ctx, EmailKind, string(account.LoginInfo.Email), 0, nil)
 	return a.transaction.Exec(ctx, func(ctx context.Context) error {
-		_, err := datastore.Put(ctx, key, account)
-		if err != nil {
+		shouldSaveEmail := true
+		var em email
+		err := datastore.Get(ctx, emailKey, &em)
+		if err != nil && err != datastore.ErrNoSuchEntity {
+			return errors.Wrap(err, "failed to get email")
+		}
+		if err == nil {
+			if em.userID != account.UserID {
+				return domain.RaiseDuplicateEmailError(string(account.LoginInfo.Email))
+			}
+			shouldSaveEmail = false
+		}
+
+		keys := []*datastore.Key{accountKey}
+		values := []interface{}{account}
+		if shouldSaveEmail {
+			keys = append(keys, emailKey)
+			values = append(values, &em)
+		}
+
+		em = email{account.UserID}
+		if _, err = datastore.PutMulti(ctx, keys, values); err != nil {
 			return errors.Wrap(err, "failed to save account")
 		}
 		return nil

@@ -35,14 +35,21 @@ type (
 	}
 )
 
-func TranslateValidationError(err domain.ValidationError, name string) ValidationError {
+func RaiseValidationError(name, reason string) error {
+	return ValidationError{
+		ErrorOf(reason),
+		name,
+	}
+}
+
+func TranslateValidationError(err domain.ValidationError, name string) error {
 	return ValidationError{
 		ErrorOf(err.Error()),
 		name,
 	}
 }
 
-func RaiseUnknownEventError(e event.Event) UnknownEventError {
+func RaiseUnknownEventError(e event.Event) error {
 	return UnknownEventError{
 		ErrorOf(fmt.Sprintf("unknown event: %#v", e)),
 		e,
