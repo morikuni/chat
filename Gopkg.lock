@@ -27,6 +27,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/morikuni/serializer"
+  packages = ["."]
+  revision = "45c4db1ffa98966649e2eeef70638e1233ea815d"
+
+[[projects]]
+  branch = "master"
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb"
@@ -64,6 +70,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "114f7a83939a69f7e563ebb6ff6b222083e0135f47592f75b4c56ee13e107ef5"
+  inputs-digest = "7ee167e86eb7dce0c1f98da83af5bbf6acc7a667ebfa5a2b1161212c231d3f73"
   solver-name = "gps-cdcl"
   solver-version = 1
