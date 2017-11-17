@@ -3,7 +3,7 @@ package reader
 import (
 	"context"
 
-	"github.com/morikuni/chat/src/reader/dto"
+	"github.com/morikuni/chat/src/application/dto"
 )
 
 type Chat interface {

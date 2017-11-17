@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/morikuni/chat/src/usecase"
+	"github.com/morikuni/chat/src/application/usecase"
 )
 
 type Error struct {

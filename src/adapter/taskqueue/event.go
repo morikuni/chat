@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/morikuni/chat/src/application/usecase"
 	"github.com/morikuni/chat/src/domain/event"
 	"github.com/morikuni/chat/src/infra"
-	"github.com/morikuni/chat/src/usecase"
 	"github.com/morikuni/serializer"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine"

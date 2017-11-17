@@ -2,7 +2,7 @@ package di
 
 import (
 	"github.com/morikuni/chat/src/adapter/datastore"
-	"github.com/morikuni/chat/src/reader"
+	"github.com/morikuni/chat/src/application/reader"
 )
 
 func InjectChatReader() reader.Chat {

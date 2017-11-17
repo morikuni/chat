@@ -3,12 +3,12 @@ package datastore
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/application/dto"
+	"github.com/morikuni/chat/src/application/reader"
+	"github.com/morikuni/chat/src/application/usecase"
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
-	"github.com/morikuni/chat/src/reader"
-	"github.com/morikuni/chat/src/reader/dto"
-	"github.com/morikuni/chat/src/usecase"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/datastore"
 )

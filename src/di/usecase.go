@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/morikuni/chat/src/usecase"
+	"github.com/morikuni/chat/src/application/usecase"
 )
 
 func InjectPosting() usecase.Posting {
