@@ -37,7 +37,8 @@ type API struct {
 func (a API) GetChats(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 
-	chats, err := a.chatReader.Chats(ctx)
+	cursorToken := r.FormValue("cursor_token")
+	chats, err := a.chatReader.Chats(ctx, cursorToken)
 	if err != nil {
 		a.HandleError(ctx, w, err)
 		return

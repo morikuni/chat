@@ -7,5 +7,5 @@ import (
 )
 
 type Chat interface {
-	Chats(ctx context.Context) ([]dto.Chat, error)
+	Chats(ctx context.Context, cursorToken string) (dto.Chats, error)
 }

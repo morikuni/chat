@@ -8,6 +8,7 @@ import (
 	"github.com/morikuni/chat/src/domain/repository"
 	"github.com/morikuni/chat/src/reader"
 	"github.com/morikuni/chat/src/reader/dto"
+	"github.com/morikuni/chat/src/usecase"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/datastore"
 )
@@ -43,16 +44,38 @@ func (chat) Save(ctx context.Context, chat *aggregate.Chat) error {
 	return nil
 }
 
-func (chat) Chats(ctx context.Context) ([]dto.Chat, error) {
-	var chats []dto.Chat
-	_, err := datastore.NewQuery(ChatKind).
+func (chat) Chats(ctx context.Context, cursorToken string) (dto.Chats, error) {
+	q := datastore.NewQuery(ChatKind).
 		Order("-PostedAt").
-		Limit(3).
-		GetAll(ctx, &chats)
+		Limit(3)
 
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read chats")
+	var chats dto.Chats
+	if cursorToken != "" {
+		c, err := datastore.DecodeCursor(cursorToken)
+		if err != nil {
+			return chats, usecase.RaiseValidationError("cursor_token", "invalid value")
+		}
+		q = q.Start(c)
 	}
+
+	itr := q.Run(ctx)
+
+	for {
+		var chat dto.Chat
+		_, err := itr.Next(&chat)
+		if err != nil {
+			if err == datastore.Done {
+				break
+			}
+			return chats, errors.Wrap(err, "failed to read chats")
+		}
+		chats.Chats = append(chats.Chats, chat)
+	}
+	cursor, err := itr.Cursor()
+	if err != nil {
+		return chats, errors.Wrap(err, "failed to get cursor")
+	}
+	chats.CursorToken = cursor.String()
 
 	return chats, nil
 }
