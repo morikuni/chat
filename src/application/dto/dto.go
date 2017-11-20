@@ -10,7 +10,9 @@ type Chats struct {
 }
 
 type Chat struct {
-	ID       int64     `json:"id"`
+	ID       string    `json:"id"`
 	Message  string    `json:"message"`
 	PostedAt time.Time `json:"posted_at"`
 }
+
+type AccessToken string

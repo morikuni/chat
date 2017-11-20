@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/morikuni/chat/src/application/dto"
 	"github.com/morikuni/chat/src/application/reader"
@@ -30,13 +31,13 @@ type chat struct{}
 func (chat) GenerateID(ctx context.Context) (model.ChatID, error) {
 	l, _, err := datastore.AllocateIDs(ctx, ChatKind, nil, 1)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to generate chat ID")
+		return "", errors.Wrap(err, "failed to generate chat ID")
 	}
-	return model.ChatID(l), nil
+	return model.ChatID(strconv.FormatInt(l, 10)), nil
 }
 
 func (chat) Save(ctx context.Context, chat *aggregate.Chat) error {
-	key := datastore.NewKey(ctx, ChatKind, "", int64(chat.ID), nil)
+	key := datastore.NewKey(ctx, ChatKind, string(chat.ID), 0, nil)
 	_, err := datastore.Put(ctx, key, chat)
 	if err != nil {
 		return errors.Wrap(err, "failed to save chat")

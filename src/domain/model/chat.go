@@ -10,7 +10,7 @@ const (
 	MaxMessageLength = 20
 )
 
-type ChatID int64
+type ChatID string
 
 type ChatMessage string
 
