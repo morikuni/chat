@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/domain"
 	"github.com/morikuni/chat/src/domain/event"
 	"github.com/morikuni/chat/src/domain/model"
@@ -36,11 +37,11 @@ type authentication struct {
 func (a authentication) CreateAccount(ctx context.Context, email, password string) error {
 	em, verr := model.ValidateEmail(email)
 	if verr != nil {
-		return TranslateValidationError(verr, "email")
+		return application.TranslateValidationError(verr, "email")
 	}
 	pw, verr := model.ValidatePassword(password)
 	if verr != nil {
-		return TranslateValidationError(verr, "password")
+		return application.TranslateValidationError(verr, "password")
 	}
 	hash, err := pw.Hash()
 	if err != nil {
@@ -63,7 +64,7 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 	})
 	if err != nil {
 		if _, ok := err.(domain.DuplicateEmailError); ok {
-			return RaiseValidationError("email", "already in use")
+			return application.RaiseValidationError("email", "already in use")
 		}
 	}
 	return nil

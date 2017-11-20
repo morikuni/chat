@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
@@ -31,7 +32,7 @@ type posting struct {
 func (p posting) PostChat(ctx context.Context, message string) error {
 	cm, verr := model.ValidateChatMessage(message)
 	if verr != nil {
-		return TranslateValidationError(verr, "message")
+		return application.TranslateValidationError(verr, "message")
 	}
 	id, err := p.chatRepository.GenerateID(ctx)
 	if err != nil {

@@ -1,4 +1,4 @@
-package usecase
+package application
 
 import (
 	"fmt"
@@ -33,6 +33,13 @@ type (
 		UsecaseError
 		Event event.Event
 	}
+	NoSuchElementError struct {
+		UsecaseError
+		Name string
+	}
+	InvalidCredentialError struct {
+		UsecaseError
+	}
 )
 
 func RaiseValidationError(name, reason string) error {
@@ -53,5 +60,18 @@ func RaiseUnknownEventError(e event.Event) error {
 	return UnknownEventError{
 		ErrorOf(fmt.Sprintf("unknown event: %#v", e)),
 		e,
+	}
+}
+
+func RaiseNoSuchElementError(name string) error {
+	return NoSuchElementError{
+		ErrorOf("no such element"),
+		name,
+	}
+}
+
+func RaiseInvalidCredentialError() error {
+	return InvalidCredentialError{
+		ErrorOf("invalid credential"),
 	}
 }

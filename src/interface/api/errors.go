@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/morikuni/chat/src/application/usecase"
+	"github.com/morikuni/chat/src/application"
 )
 
 type Error struct {
@@ -16,7 +16,7 @@ var (
 	}
 )
 
-func ValidationError(err usecase.ValidationError) Error {
+func ValidationError(err application.ValidationError) Error {
 	return Error{
 		"validation error",
 		struct {

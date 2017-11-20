@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/domain/event"
 	"github.com/morikuni/chat/src/infra"
 )
@@ -24,7 +25,7 @@ func (eh eventHandler) Handle(ctx context.Context, e event.Event) error {
 	case event.AccountCreated:
 		eh.logger.Debugf(ctx, "event received: %#v", e)
 	default:
-		return RaiseUnknownEventError(e)
+		return application.RaiseUnknownEventError(e)
 	}
 	return nil
 }

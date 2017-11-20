@@ -67,7 +67,7 @@ func (a API) PostAccounts(w http.ResponseWriter, r *http.Request) {
 
 func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) {
 	switch t := err.(type) {
-	case usecase.ValidationError:
+	case application.ValidationError:
 		a.JSON(ctx, w, http.StatusBadRequest, ValidationError(t))
 	default:
 		buf := &bytes.Buffer{}

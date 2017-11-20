@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/application/dto"
 	"github.com/morikuni/chat/src/application/reader"
-	"github.com/morikuni/chat/src/application/usecase"
 	"github.com/morikuni/chat/src/domain/model"
 	"github.com/morikuni/chat/src/domain/model/aggregate"
 	"github.com/morikuni/chat/src/domain/repository"
@@ -54,7 +54,7 @@ func (chat) Chats(ctx context.Context, cursorToken string) (dto.Chats, error) {
 	if cursorToken != "" {
 		c, err := datastore.DecodeCursor(cursorToken)
 		if err != nil {
-			return chats, usecase.RaiseValidationError("cursor_token", "invalid value")
+			return chats, application.RaiseValidationError("cursor_token", "invalid value")
 		}
 		q = q.Start(c)
 	}
