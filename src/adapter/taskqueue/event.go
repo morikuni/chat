@@ -63,11 +63,6 @@ func (ep eventPublisher) createTask(e event.Event) (*taskqueue.Task, error) {
 	}, nil
 }
 
-type serializedEvent struct {
-	Name    string
-	Payload []byte
-}
-
 func NewTaskHandler(
 	log infra.Logger,
 	eventHandler usecase.EventHandler,
