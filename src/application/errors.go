@@ -59,8 +59,8 @@ func RaiseUnknownEventError(e event.Event) error {
 	}
 }
 
-func RaiseInvalidCredentialError() error {
+func RaiseInvalidCredentialError(reason string) error {
 	return InvalidCredentialError{
-		ErrorOf("invalid credential"),
+		ErrorOf(fmt.Sprintf("invalid credential: %v", reason)),
 	}
 }

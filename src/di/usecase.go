@@ -22,6 +22,7 @@ func InjectAuthentication() usecase.Authentication {
 func InjectAuthorization() usecase.Authorization {
 	return usecase.NewAuthorization(
 		InjectAuthentication(),
+		InjectClock(),
 	)
 }
 

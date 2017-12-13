@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 
+	"fmt"
+
 	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/domain"
 	"github.com/morikuni/chat/src/domain/event"
@@ -83,13 +85,13 @@ func (a authentication) Login(ctx context.Context, email, password string) (mode
 	account, err := a.accountRepository.FindByEmail(ctx, em)
 	if err != nil {
 		if _, ok := err.(domain.NoSuchAggregateError); ok {
-			return "", application.RaiseInvalidCredentialError()
+			return "", application.RaiseInvalidCredentialError(fmt.Sprintf("no such email: %v", email))
 		}
 		return "", err
 	}
 	if err := account.LoginInfo.Password.Equal(pw); err != nil {
 		if _, ok := err.(domain.PasswordMismatchError); ok {
-			return "", application.RaiseInvalidCredentialError()
+			return "", application.RaiseInvalidCredentialError("invalid password")
 		}
 		return "", err
 	}
