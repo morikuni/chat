@@ -8,6 +8,7 @@ func InjectAPI() api.API {
 	return api.NewAPI(
 		InjectPosting(),
 		InjectAuthentication(),
+		InjectAuthorization(),
 		InjectChatReader(),
 		InjectLogger(),
 	)

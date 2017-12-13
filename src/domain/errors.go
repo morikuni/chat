@@ -30,6 +30,12 @@ type (
 	DuplicateEmailError struct {
 		DomainError
 	}
+	NoSuchAggregateError struct {
+		DomainError
+	}
+	PasswordMismatchError struct {
+		DomainError
+	}
 )
 
 type validationError struct {
@@ -44,4 +50,12 @@ func RaiseValidationError(message string) ValidationError {
 
 func RaiseDuplicateEmailError(email string) error {
 	return DuplicateEmailError{ErrorOf(fmt.Sprintf("email duplicated: %s", email))}
+}
+
+func RaiseNoSuchAggregateError() error {
+	return NoSuchAggregateError{ErrorOf("no such aggregate")}
+}
+
+func RaisePasswordMismatchError() error {
+	return PasswordMismatchError{ErrorOf("password mismatch")}
 }

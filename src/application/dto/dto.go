@@ -15,4 +15,6 @@ type Chat struct {
 	PostedAt time.Time `json:"posted_at"`
 }
 
-type AccessToken string
+type AccessToken struct {
+	Token string `json:"token"`
+}

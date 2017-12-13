@@ -83,3 +83,15 @@ func (account) Find(ctx context.Context, id model.UserID) (*aggregate.Account, e
 	}
 	return &account, nil
 }
+
+func (a account) FindByEmail(ctx context.Context, email model.Email) (*aggregate.Account, error) {
+	key := datastore.NewKey(ctx, EmailKind, string(email), 0, nil)
+	var em emailEntity
+	if err := datastore.Get(ctx, key, &em); err != nil {
+		if err == datastore.ErrNoSuchEntity {
+			return nil, domain.RaiseNoSuchAggregateError()
+		}
+		return nil, errors.Wrap(err, "failed to get email")
+	}
+	return a.Find(ctx, em.UserID)
+}

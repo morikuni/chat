@@ -14,6 +14,10 @@ var (
 		"internal server error",
 		nil,
 	}
+	InvalidCredentialError = Error{
+		"invalid email or password",
+		nil,
+	}
 )
 
 func ValidationError(err application.ValidationError) Error {

@@ -14,6 +14,7 @@ import (
 
 type Authentication interface {
 	CreateAccount(ctx context.Context, email, password string) error
+	Login(ctx context.Context, email, password string) (model.UserID, error)
 }
 
 func NewAuthentication(
@@ -68,4 +69,30 @@ func (a authentication) CreateAccount(ctx context.Context, email, password strin
 		}
 	}
 	return nil
+}
+
+func (a authentication) Login(ctx context.Context, email, password string) (model.UserID, error) {
+	em, verr := model.ValidateEmail(email)
+	if verr != nil {
+		return "", application.TranslateValidationError(verr, "email")
+	}
+	pw, verr := model.ValidatePassword(password)
+	if verr != nil {
+		return "", application.TranslateValidationError(verr, "password")
+	}
+	account, err := a.accountRepository.FindByEmail(ctx, em)
+	if err != nil {
+		if _, ok := err.(domain.NoSuchAggregateError); ok {
+			return "", application.RaiseInvalidCredentialError()
+		}
+		return "", err
+	}
+	if err := account.LoginInfo.Password.Equal(pw); err != nil {
+		if _, ok := err.(domain.PasswordMismatchError); ok {
+			return "", application.RaiseInvalidCredentialError()
+		}
+		return "", err
+	}
+
+	return account.UserID, nil
 }

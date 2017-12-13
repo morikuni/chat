@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/morikuni/chat/src/application"
 	"github.com/morikuni/chat/src/application/reader"
 	"github.com/morikuni/chat/src/application/usecase"
 	"github.com/morikuni/chat/src/infra"
@@ -16,12 +17,14 @@ import (
 func NewAPI(
 	posting usecase.Posting,
 	authentication usecase.Authentication,
+	authorization usecase.Authorization,
 	chatReader reader.Chat,
 	logger infra.Logger,
 ) API {
 	return API{
 		posting,
 		authentication,
+		authorization,
 		chatReader,
 		logger,
 	}
@@ -30,6 +33,7 @@ func NewAPI(
 type API struct {
 	posting        usecase.Posting
 	authentication usecase.Authentication
+	authorization  usecase.Authorization
 	chatReader     reader.Chat
 	logger         infra.Logger
 }
@@ -65,10 +69,24 @@ func (a API) PostAccounts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a API) PostTokens(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	at, err := a.authorization.GenerateAccessToken(ctx, email, password)
+	if err != nil {
+		a.HandleError(ctx, w, err)
+		return
+	}
+	a.JSON(ctx, w, http.StatusOK, at)
+}
+
 func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) {
 	switch t := err.(type) {
 	case application.ValidationError:
 		a.JSON(ctx, w, http.StatusBadRequest, ValidationError(t))
+	case application.InvalidCredentialError:
+		a.JSON(ctx, w, http.StatusForbidden, InvalidCredentialError)
 	default:
 		buf := &bytes.Buffer{}
 		fmt.Fprintf(buf, "api: %v\n", err)
@@ -77,7 +95,7 @@ func (a API) HandleError(ctx context.Context, w http.ResponseWriter, err error) 
 				fmt.Fprintf(buf, "%+s:%d\n", f, f)
 			}
 		}
-		a.logger.Errorf(ctx, "%s", buf.String())
+		a.logger.Errorf(ctx, "%T %s", err, buf.String())
 		a.JSON(ctx, w, http.StatusInternalServerError, InternalServerError)
 	}
 }

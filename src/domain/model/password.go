@@ -30,5 +30,12 @@ func (p Password) Hash() (PasswordHash, error) {
 type PasswordHash []byte
 
 func (p PasswordHash) Equal(password Password) error {
-	return errors.Wrap(bcrypt.CompareHashAndPassword([]byte(p), []byte(password)), "failed to compare password")
+	err := bcrypt.CompareHashAndPassword([]byte(p), []byte(password))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return domain.RaisePasswordMismatchError()
+	}
+	if err != nil {
+		return errors.Wrap(err, "failed to compare password")
+	}
+	return nil
 }
