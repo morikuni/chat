@@ -18,6 +18,19 @@ type message struct {
 
 var _ Message = (*message)(nil)
 
+func NewMessage(
+	accountRepo AccountRepository,
+	roomRepo RoomRepository,
+	messageRepo MessageRepository,
+) Message {
+	return &message{
+		accountRepo,
+		roomRepo,
+		messageRepo,
+		time.Now,
+	}
+}
+
 type PostMessageRequest struct {
 	PostedBy domain.AccountID
 	RoomID   domain.RoomID

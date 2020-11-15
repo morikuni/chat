@@ -14,6 +14,16 @@ type room struct {
 
 var _ Room = (*room)(nil)
 
+func NewRoom(
+	accountRepo AccountRepository,
+	roomRepo RoomRepository,
+) Room {
+	return &room{
+		accountRepo,
+		roomRepo,
+	}
+}
+
 type CreateRoomRequest struct {
 	OwnerID domain.AccountID
 	Name    domain.RoomName

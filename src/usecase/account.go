@@ -13,6 +13,14 @@ type account struct {
 
 var _ Account = (*account)(nil)
 
+func NewAccount(
+	accountRepo AccountRepository,
+) Account {
+	return &account{
+		accountRepo,
+	}
+}
+
 type CreateAccountRequest struct {
 	Name domain.AccountName
 }
